@@ -102,6 +102,16 @@ enum class JrkG2Pin
   FBT = 7,
 };
 
+/// This enum defines the bits in the Jrk G2's Options Byte 3 register.  You
+/// should not need to use this directly.  See JrkG2Base::setResetIntegral(),
+/// JrkG2Base::getResetIntegral(), JrkG2Base::setCoastWhenOff(), and
+/// JrkG2Base::getCoastWhenOff().
+enum class JrkG2OptionsByte3
+{
+  ResetIntegral = 0,
+  CoastWhenOff = 1,
+};
+
 /// This is a base class used to represent a connection to a Jrk G2.  This class
 /// provides high-level functions for sending commands to the Jrk and reading
 /// data from it.
@@ -274,7 +284,7 @@ public:
   {
     return (JrkG2ForceMode)(getVar8SingleByte(VarOffset::FlagByte1) & 0x03);
   }
-  
+
   /// Gets the measurement of the VIN voltage, in millivolts.
   ///
   /// Example usage:
@@ -423,10 +433,241 @@ public:
   /// EEPROM, see the Jrk G2 user's guide.
   void getSetting(uint8_t offset, uint8_t length, uint8_t * buffer)
   {
-    getSegment(JrkG2Command::GetSettings, offset, length, buffer);
+    segmentRead(JrkG2Command::GetSettings, offset, length, buffer);
   }
-  
-  // TODO: overridable settings
+
+  void setResetIntegral(bool reset)
+  {
+    uint8_t tmp = getOvrSetting8(OvrSettingOffset::OptionsByte3);
+    if (reset)
+    {
+      tmp |= 1 << (uint8_t)JrkG2OptionsByte3::ResetIntegral;
+    }
+    else
+    {
+      tmp &= ~(1 << (uint8_t)JrkG2OptionsByte3::ResetIntegral);
+    }
+    setOvrSetting8(OvrSettingOffset::OptionsByte3, tmp);
+  }
+
+  bool getResetIntegral()
+  {
+    return getOvrSetting8(OvrSettingOffset::OptionsByte3) >> (uint8_t)JrkG2OptionsByte3::ResetIntegral & 1;
+  }
+
+  void setCoastWhenOff(bool coast)
+  {
+    uint8_t tmp = getOvrSetting8(OvrSettingOffset::OptionsByte3);
+    if (coast)
+    {
+      tmp |= 1 << (uint8_t)JrkG2OptionsByte3::CoastWhenOff;
+    }
+    else
+    {
+      tmp &= ~(1 << (uint8_t)JrkG2OptionsByte3::CoastWhenOff);
+    }
+    setOvrSetting8(OvrSettingOffset::OptionsByte3, tmp);
+  }
+
+  bool getCoastWhenOff()
+  {
+    return getOvrSetting8(OvrSettingOffset::OptionsByte3) >> (uint8_t)JrkG2OptionsByte3::CoastWhenOff & 1;
+  }
+
+  void setProportionalCoefficient(uint16_t multiplier, uint8_t exponent)
+  {
+    setPIDCoefficient(OvrSettingOffset::ProportionalMultiplier, multiplier, exponent);
+  }
+
+  uint16_t getProportionalMultiplier()
+  {
+    return getOvrSetting16(OvrSettingOffset::ProportionalMultiplier);
+  }
+
+  uint8_t getProportionalExponent()
+  {
+    return getOvrSetting8(OvrSettingOffset::ProportionalExponent);
+  }
+
+  void setIntegralCoefficient(uint16_t multiplier, uint8_t exponent)
+  {
+    setPIDCoefficient(OvrSettingOffset::IntegralMultiplier, multiplier, exponent);
+  }
+
+  uint16_t getIntegralMultiplier()
+  {
+    return getOvrSetting16(OvrSettingOffset::IntegralMultiplier);
+  }
+
+  uint8_t getIntegralExponent()
+  {
+    return getOvrSetting8(OvrSettingOffset::IntegralExponent);
+  }
+
+  void setDerivativeCoefficient(uint16_t multiplier, uint8_t exponent)
+  {
+    setPIDCoefficient(OvrSettingOffset::DerivativeMultiplier, multiplier, exponent);
+  }
+
+  uint16_t getDerivativeMultiplier()
+  {
+    return getOvrSetting16(OvrSettingOffset::DerivativeMultiplier);
+  }
+
+  uint8_t getDerivativeExponent()
+  {
+    return getOvrSetting8(OvrSettingOffset::DerivativeExponent);
+  }
+
+  void setPIDPeriod(uint16_t period)
+  {
+    setOvrSetting16(OvrSettingOffset::PIDPeriod, period);
+  }
+
+  uint16_t getPIDPeriod()
+  {
+    return getOvrSetting16(OvrSettingOffset::PIDPeriod);
+  }
+
+  void setIntegralLimit(uint16_t limit)
+  {
+    setOvrSetting16(OvrSettingOffset::IntegralLimit, limit);
+  }
+
+  uint16_t getIntegralLimit()
+  {
+    return getOvrSetting16(OvrSettingOffset::IntegralLimit);
+  }
+
+  void setMaxDutyCycleWhileFeedbackOutOfRange(uint16_t duty)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxDutyCycleWhileFeedbackOutOfRange, duty);
+  }
+
+  uint16_t getMaxDutyCycleWhileFeedbackOutOfRange()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxDutyCycleWhileFeedbackOutOfRange);
+  }
+
+  void setMaxAccelerationForward(uint16_t accel)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxAccelerationForward, accel);
+  }
+
+  uint16_t getMaxAccelerationForward()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxAccelerationForward);
+  }
+
+  void setMaxAccelerationReverse(uint16_t accel)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxAccelerationReverse, accel);
+  }
+
+  uint16_t getMaxAccelerationReverse()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxAccelerationReverse);
+  }
+
+  void setMaxDecelerationForward(uint16_t decel)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxDecelerationForward, decel);
+  }
+
+  uint16_t getMaxDecelerationForward()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxDecelerationForward);
+  }
+
+  void setMaxDecelerationReverse(uint16_t decel)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxDecelerationReverse, decel);
+  }
+
+  uint16_t getMaxDecelerationReverse()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxDecelerationReverse);
+  }
+
+  void setMaxDutyCycleForward(uint16_t duty)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxDutyCycleForward, duty);
+  }
+
+  uint16_t getMaxDutyCycleForward()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxDutyCycleForward);
+  }
+
+  void setMaxDutyCycleReverse(uint16_t duty)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxDutyCycleReverse, duty);
+  }
+
+  uint16_t getMaxDutyCycleReverse()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxDutyCycleReverse);
+  }
+
+  void setCurrentLimitCodeForward(uint16_t code)
+  {
+    setOvrSetting16(OvrSettingOffset::CurrentLimitCodeForward, code);
+  }
+
+  uint16_t getCurrentLimitCodeForward()
+  {
+    return getOvrSetting16(OvrSettingOffset::CurrentLimitCodeForward);
+  }
+
+  void setCurrentLimitCodeReverse(uint16_t code)
+  {
+    setOvrSetting16(OvrSettingOffset::CurrentLimitCodeReverse, code);
+  }
+
+  uint16_t getCurrentLimitCodeReverse()
+  {
+    return getOvrSetting16(OvrSettingOffset::CurrentLimitCodeReverse);
+  }
+
+  void setBrakeDurationForward(uint8_t duration)
+  {
+    setOvrSetting8(OvrSettingOffset::BrakeDurationForward, duration);
+  }
+
+  uint8_t getBrakeDurationForward()
+  {
+    return getOvrSetting8(OvrSettingOffset::BrakeDurationForward);
+  }
+
+  void setBrakeDurationReverse(uint8_t duration)
+  {
+    setOvrSetting8(OvrSettingOffset::BrakeDurationReverse, duration);
+  }
+
+  uint8_t getBrakeDurationReverse()
+  {
+    return getOvrSetting8(OvrSettingOffset::BrakeDurationReverse);
+  }
+
+  void setMaxCurrentForward(uint16_t current)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxCurrentForward, current);
+  }
+
+  uint16_t getMaxCurrentForward()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxCurrentForward);
+  }
+
+  void setMaxCurrentReverse(uint16_t current)
+  {
+    setOvrSetting16(OvrSettingOffset::MaxCurrentReverse, current);
+  }
+
+  uint16_t getMaxCurrentReverse()
+  {
+    return getOvrSetting16(OvrSettingOffset::MaxCurrentReverse);
+  }
 
   /// Returns 0 if the last communication with the device was successful, and
   /// non-zero if there was an error.
@@ -455,7 +696,7 @@ private:
     PIDPeriodCount                  = 0x10, // uint16_t
     ErrorFlagsHalting               = 0x12, // uint16_t
     ErrorFlagsOccurred              = 0x14, // uint16_t
-    
+
     FlagByte1                       = 0x16, // uint8_t
     VinVoltage                      = 0x17, // uint16_t
     Current                         = 0x19, // uint16_t
@@ -477,6 +718,32 @@ private:
     CurrentChoppingOccurrenceCount  = 0x34, // uint8_t; read with dedicated command
   };
 
+  enum OvrSettingOffset
+  {
+    OptionsByte3                        = 0x00, // uint8_t
+    ProportionalMultiplier              = 0x01, // uint16_t
+    ProportionalExponent                = 0x03, // uint8_t
+    IntegralMultiplier                  = 0x04, // uint16_t
+    IntegralExponent                    = 0x06, // uint8_t
+    DerivativeMultiplier                = 0x07, // uint16_t
+    DerivativeExponent                  = 0x09, // uint8_t
+    PIDPeriod                           = 0x0a, // uint16_t
+    IntegralLimit                       = 0x0c, // uint16_t
+    MaxDutyCycleWhileFeedbackOutOfRange = 0x0e, // uint16_t
+    MaxAccelerationForward              = 0x10, // uint16_t
+    MaxAccelerationReverse              = 0x12, // uint16_t
+    MaxDecelerationForward              = 0x14, // uint16_t
+    MaxDecelerationReverse              = 0x16, // uint16_t
+    MaxDutyCycleForward                 = 0x18, // uint16_t
+    MaxDutyCycleReverse                 = 0x1a, // uint16_t
+    CurrentLimitCodeForward             = 0x1c, // uint16_t
+    CurrentLimitCodeReverse             = 0x1e, // uint16_t
+    BrakeDurationForward                = 0x20, // uint8_t
+    BrakeDurationReverse                = 0x21, // uint8_t
+    MaxCurrentForward                   = 0x22, // uint16_t
+    MaxCurrentReverse                   = 0x24, // uint16_t
+  };
+
   uint8_t getVar8SingleByte(uint8_t offset)
   {
     return commandR8((uint8_t)JrkG2Command::GetVariable8 | (offset + 1));
@@ -490,25 +757,58 @@ private:
   uint8_t getVar8(uint8_t offset)
   {
     uint8_t result;
-    getSegment(JrkG2Command::GetVariables, offset, 1, &result);
+    segmentRead(JrkG2Command::GetVariables, offset, 1, &result);
     return result;
   }
 
   uint16_t getVar16(uint8_t offset)
   {
     uint8_t buffer[2];
-    getSegment(JrkG2Command::GetVariables, offset, 2, &buffer);
+    segmentRead(JrkG2Command::GetVariables, offset, 2, buffer);
     return ((uint16_t)buffer[0] << 0) | ((uint16_t)buffer[1] << 8);
   }
 
   uint32_t getVar32(uint8_t offset)
   {
     uint8_t buffer[4];
-    getSegment(JrkG2Command::GetVariables, offset, 4, buffer);
+    segmentRead(JrkG2Command::GetVariables, offset, 4, buffer);
     return ((uint32_t)buffer[0] << 0) |
       ((uint32_t)buffer[1] << 8) |
       ((uint32_t)buffer[2] << 16) |
       ((uint32_t)buffer[3] << 24);
+  }
+
+  void setOvrSetting8(uint8_t offset, uint8_t val)
+  {
+    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 1, &val);
+  }
+
+  void setOvrSetting16(uint8_t offset, uint16_t val)
+  {
+    uint8_t buffer[2] = {(uint8_t)val, (uint8_t)(val >> 8)};
+    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 2, buffer);
+  }
+
+  // slightly faster way to set multiplier and exponent together in one segment
+  // write
+  void setPIDCoefficient(uint8_t offset, uint16_t multiplier, uint8_t exponent)
+  {
+    uint8_t buffer[3] = {(uint8_t)multiplier, (uint8_t)(multiplier >> 8), exponent};
+    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 3, buffer);
+  }
+
+  uint8_t getOvrSetting8(uint8_t offset)
+  {
+    uint8_t result;
+    segmentRead(JrkG2Command::GetOverridableSettings, offset, 1, &result);
+    return result;
+  }
+
+  uint16_t getOvrSetting16(uint8_t offset)
+  {
+    uint8_t buffer[2];
+    segmentRead(JrkG2Command::GetOverridableSettings, offset, 2, buffer);
+    return ((uint16_t)buffer[0] << 0) | ((uint16_t)buffer[1] << 8);
   }
 
   virtual void commandQuick(JrkG2Command cmd) = 0;
@@ -519,8 +819,10 @@ private:
   uint8_t commandR8(JrkG2Command cmd) { return commandR8((uint8_t)cmd); }
   virtual uint16_t commandR16(uint8_t cmd) = 0;
   uint16_t commandR16(JrkG2Command cmd) { return commandR16((uint8_t)cmd); }
-  virtual void getSegment(JrkG2Command cmd, uint8_t offset,
-    uint8_t length, void * buffer);
+  virtual void segmentRead(JrkG2Command cmd, uint8_t offset,
+    uint8_t length, void * buffer) = 0;
+  virtual void segmentWrite(JrkG2Command cmd, uint8_t offset,
+    uint8_t length, void * buffer) = 0;
 };
 
 /// Represents a serial connection to a Jrk G2.
@@ -576,7 +878,9 @@ private:
   void commandWs14(JrkG2Command cmd, int16_t val);
   uint8_t commandR8(uint8_t cmd);
   uint16_t commandR16(uint8_t cmd);
-  void getSegment(JrkG2Command cmd, uint8_t offset,
+  void segmentRead(JrkG2Command cmd, uint8_t offset,
+    uint8_t length, void * buffer);
+  void segmentWrite(JrkG2Command cmd, uint8_t offset,
     uint8_t length, void * buffer);
 
   void sendCommandHeader(uint8_t cmd);
@@ -612,7 +916,10 @@ private:
   void commandWs14(JrkG2Command cmd, int16_t val);
   uint8_t commandR8(uint8_t cmd);
   uint16_t commandR16(uint8_t cmd);
-  void getSegment(JrkG2Command cmd, uint8_t offset,
+  void segmentRead(JrkG2Command cmd, uint8_t offset,
     uint8_t length, void * buffer);
+  void segmentWrite(JrkG2Command cmd, uint8_t offset,
+    uint8_t length, void * buffer) ;
+
   void delayAfterRead();
 };
