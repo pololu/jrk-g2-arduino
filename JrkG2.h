@@ -917,6 +917,12 @@ public:
     return getOvrSetting16(OvrSettingOffset::MaxAccelerationReverse);
   }
 
+  /// Sets the Jrk's maximum accelerations in both directions.
+  void setMaxAccelerations(uint16_t forwardAccel, uint16_t reverseAccel)
+  {
+    setOvrSetting16x2(OvrSettingOffset::MaxAccelerationForward, forwardAccel, reverseAccel);
+  }
+
   /// Sets the Jrk's maximum deceleration in the forward direction.  This is the
   /// maximum amount in a single PID period that the the duty cycle can decrease
   /// by in the forward direction.
@@ -957,6 +963,12 @@ public:
     return getOvrSetting16(OvrSettingOffset::MaxDecelerationReverse);
   }
 
+  /// Sets the Jrk's maximum decelerations in both directions.
+  void setMaxDecelerations(uint16_t forwardDecel, uint16_t reverseDecel)
+  {
+    setOvrSetting16x2(OvrSettingOffset::MaxDecelerationForward, forwardDecel, reverseDecel);
+  }
+
   /// Sets the Jrk's maximum duty cycle in the forward direction.
   ///
   /// See also getMaxDutyCycleForward() and setMaxDutyCycleReverse().
@@ -989,6 +1001,12 @@ public:
     return getOvrSetting16(OvrSettingOffset::MaxDutyCycleReverse);
   }
 
+  /// Sets the Jrk's maximum duty cycles in both directions.
+  void setMaxDutyCycles(uint16_t forwardDuty, uint16_t reverseDuty)
+  {
+    setOvrSetting16x2(OvrSettingOffset::MaxDutyCycleForward, forwardDuty, reverseDuty);
+  }
+
   /// Sets the Jrk's current limit code for driving in the forward direction.  TODO check/fix
   ///
   /// See also getCurrentLimitCodeForward() and setCurrentLimitCodeReverse().
@@ -1019,6 +1037,12 @@ public:
   uint16_t getCurrentLimitCodeReverse()
   {
     return getOvrSetting16(OvrSettingOffset::CurrentLimitCodeReverse);
+  }
+
+  /// Sets the Jrk's current limit codes for driving in both directions.
+  void setCurrentLimitCodes(uint16_t forwardCode, uint16_t reverseCode)
+  {
+    setOvrSetting16x2(OvrSettingOffset::CurrentLimitCodeForward, forwardCode, reverseCode);
   }
 
   /// Sets the Jrk's brake duration when switching from forward to reverse.  The
@@ -1057,6 +1081,12 @@ public:
     return getOvrSetting8(OvrSettingOffset::BrakeDurationReverse);
   }
 
+  /// Sets the Jrk's brake durations for driving in both directions.
+  void setBrakeDurations(uint8_t forwardDuration, uint8_t reverseDuration)
+  {
+    setOvrSetting8x2(OvrSettingOffset::BrakeDurationForward, forwardDuration, reverseDuration);
+  }
+
   /// Sets the Jrk's current limit when driving in the forward direction.  The
   /// Jrk will adjust the duty cycle as necessary to limit the current to the
   /// specified value.  For accurate current limiting, acceleration should be
@@ -1091,6 +1121,12 @@ public:
   uint16_t getMaxCurrentReverse()
   {
     return getOvrSetting16(OvrSettingOffset::MaxCurrentReverse);
+  }
+
+  /// Sets the Jrk's current limits for driving in both directions.
+  void setMaxCurrents(uint16_t forwardCurrent, uint16_t reverseCurrent)
+  {
+    setOvrSetting16x2(OvrSettingOffset::MaxCurrentForward, forwardCurrent, reverseCurrent);
   }
 
   /// Returns 0 if the last communication with the device was successful, and
@@ -1211,6 +1247,19 @@ private:
   {
     uint8_t buffer[2] = {(uint8_t)val, (uint8_t)(val >> 8)};
     segmentWrite(JrkG2Command::SetOverridableSettings, offset, 2, buffer);
+  }
+
+  void setOvrSetting8x2(uint8_t offset, uint8_t val1, uint8_t val2)
+  {
+    uint8_t buffer[2] = {val1, val2};
+    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 2, buffer);
+  }
+
+  void setOvrSetting16x2(uint8_t offset, uint16_t val1, uint16_t val2)
+  {
+    uint8_t buffer[4] = {(uint8_t)val1, (uint8_t)(val1 >> 8),
+                         (uint8_t)val2, (uint8_t)(val2 >> 8)};
+    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 4, buffer);
   }
 
   // set multiplier and exponent together in one segment write
