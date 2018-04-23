@@ -37,16 +37,16 @@ enum class JrkG2Error
   MaxCurrentExceeded  = 6,
   SerialSignal        = 7,
   SerialOverrun       = 8,
-  SerialBufferFul     = 9,
+  SerialBufferFull    = 9,
   SerialCrc           = 10,
   SerialProtocol      = 11,
   SerialTimeout       = 12,
   Overcurrent         = 13,
 };
 
-/// This enum defines the Jrk G2 command codes which are used for its serial,
-/// I2C, and USB interface.  These codes are used by the library and you should
-/// not need to use them.
+/// This enum defines the Jrk G2 command bytes which are used for its serial and
+/// I2C interfaces.  These bytes are used by the library and you should not need
+/// to use them.
 enum class JrkG2Command
 {
   SetTarget                         = 0xC0,
@@ -57,10 +57,10 @@ enum class JrkG2Command
   MotorOff                          = 0xFF,
   GetVariable8                      = 0x80,
   GetVariable16                     = 0xA0,
-  GetSettings                       = 0xE3,
+  GetEepromSettings                 = 0xE3,
   GetVariables                      = 0xE5,
-  SetOverridableSettings            = 0xE6,
-  GetOverridableSettings            = 0xEA,
+  SetRamSettings                    = 0xE6,
+  GetRamSettings                    = 0xEA,
   GetCurrentChoppingOccurrenceCount = 0xEC,
 };
 
@@ -642,7 +642,7 @@ public:
   /// EEPROM, see the Jrk G2 user's guide. TODO this might change
   void getSetting(uint8_t offset, uint8_t length, uint8_t * buffer)
   {
-    segmentRead(JrkG2Command::GetSettings, offset, length, buffer);
+    segmentRead(JrkG2Command::GetEepromSettings, offset, length, buffer);
   }
 
   /// Sets or clears the option to reset the Jrk's error sum (integral) when
@@ -1240,26 +1240,26 @@ private:
 
   void setOvrSetting8(uint8_t offset, uint8_t val)
   {
-    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 1, &val);
+    segmentWrite(JrkG2Command::SetRamSettings, offset, 1, &val);
   }
 
   void setOvrSetting16(uint8_t offset, uint16_t val)
   {
     uint8_t buffer[2] = {(uint8_t)val, (uint8_t)(val >> 8)};
-    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 2, buffer);
+    segmentWrite(JrkG2Command::SetRamSettings, offset, 2, buffer);
   }
 
   void setOvrSetting8x2(uint8_t offset, uint8_t val1, uint8_t val2)
   {
     uint8_t buffer[2] = {val1, val2};
-    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 2, buffer);
+    segmentWrite(JrkG2Command::SetRamSettings, offset, 2, buffer);
   }
 
   void setOvrSetting16x2(uint8_t offset, uint16_t val1, uint16_t val2)
   {
     uint8_t buffer[4] = {(uint8_t)val1, (uint8_t)(val1 >> 8),
                          (uint8_t)val2, (uint8_t)(val2 >> 8)};
-    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 4, buffer);
+    segmentWrite(JrkG2Command::SetRamSettings, offset, 4, buffer);
   }
 
   // set multiplier and exponent together in one segment write
@@ -1267,20 +1267,20 @@ private:
   void setPIDCoefficient(uint8_t offset, uint16_t multiplier, uint8_t exponent)
   {
     uint8_t buffer[3] = {(uint8_t)multiplier, (uint8_t)(multiplier >> 8), exponent};
-    segmentWrite(JrkG2Command::SetOverridableSettings, offset, 3, buffer);
+    segmentWrite(JrkG2Command::SetRamSettings, offset, 3, buffer);
   }
 
   uint8_t getOvrSetting8(uint8_t offset)
   {
     uint8_t result;
-    segmentRead(JrkG2Command::GetOverridableSettings, offset, 1, &result);
+    segmentRead(JrkG2Command::GetRamSettings, offset, 1, &result);
     return result;
   }
 
   uint16_t getOvrSetting16(uint8_t offset)
   {
     uint8_t buffer[2];
-    segmentRead(JrkG2Command::GetOverridableSettings, offset, 2, buffer);
+    segmentRead(JrkG2Command::GetRamSettings, offset, 2, buffer);
     return ((uint16_t)buffer[0] << 0) | ((uint16_t)buffer[1] << 8);
   }
 
