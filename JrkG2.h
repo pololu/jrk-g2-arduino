@@ -69,7 +69,7 @@ enum class JrkG2Command
 /// overridden with a forced value.
 ///
 /// See JrkG2Base::getForceMode(), JrkG2Base::forceDutyCycleTarget(), and
-/// JrkG2Base::forceDutyCycle,
+/// JrkG2Base::forceDutyCycle().
 enum class JrkG2ForceMode
 {
   None            = 0,
@@ -123,22 +123,22 @@ enum class JrkG2OptionsByte3
 class JrkG2Base
 {
 public:
-  /// Sets the target of the Jrk to a value in the range 0-4095. This can
-  /// represent a target duty cycle, speed, or position depending on the
-  /// feedback mode.
+  /// Sets the target of the Jrk to a value in the range 0 to 4095.
+  ///
+  /// The target can represent a target duty cycle, speed, or position depending
+  /// on the feedback mode.
   ///
   /// Example usage:
   /// ```
   /// jrkG2.setTarget(3000);
   /// ```
   ///
-  /// This function sends a "Set target" command to the Jrk G2.  TODO: error flags?
+  /// This functions sends a "Set target" command to the jrk, which clears the
+  /// "Awaiting command" error bit and (if the input mode is serial) will set
+  /// the jrk's input and target variables.
   ///
-  /// If the input mode is not Serial, or if the command is received on a serial
-  /// interface other than the selected one (USB or UART), this command will be
-  /// silently ignored.
-  ///
-  /// See also setTargetLowResRev(), setTargetLowResFwd(), and getTarget().
+  /// See also setTargetLowResRev(), setTargetLowResFwd(), getTarget(),
+  /// forceDutyCycleTarget(), forceDutyCycle().
   void setTarget(uint16_t target)
   {
     // lower 5 bits in command byte
@@ -147,15 +147,16 @@ public:
     commandW7((uint8_t)JrkG2Command::SetTarget | (target & 0x1F), target >> 5);
   }
 
-  /// Sets the target of the Jrk to a value in the range 0-127.  If the value is
-  /// zero, then this command is equivalent to the Motor Off command. Otherwise,
-  /// the value maps to a 12-bit target less than 2048.
+  /// Sets the target of the Jrk based on a value in the range 0 to 127.
+  ///
+  /// If the value is zero, then this command is equivalent to the Motor Off
+  /// command. Otherwise, the value maps to a 12-bit target less than 2048.
   ///
   /// If the feedback mode is Analog or Tachometer, then the formula is
   /// Target = 2048 - 16 * value.
   ///
   /// If the feedback mode is None (speed control mode), then the formula is
-  /// Target = 2048 - (600 / 127) * magnitude.  This means that a magnitude of
+  /// Target = 2048 - (600 / 127) * value.  This means that a value of
   /// 127 will set the duty cycle target to full-speed reverse (-600).
   ///
   /// Example usage:
@@ -163,42 +164,36 @@ public:
   /// jrkG2.setTargetLowResRev(100);
   /// ```
   ///
-  /// This function sends a "Set target Low Resolution Reverse" command to the
-  /// Jrk G2.  TODO: error flags?
+  /// This function sends a "Set target low resolution reverse" command to the
+  /// Jrk G2, which clears the "Awaiting command" error bit and (if the input
+  /// mode is serial) will set the jrk's input and target variables.
   ///
-  /// If the input mode is not Serial, or if the command is received on a serial
-  /// interface other than the selected one (USB or UART), this command will be
-  /// silently ignored.
-  ///
-  /// See also setTargetLowResFwd(), setTarget(), getTarget(), and motorOff().
+  /// See also setTargetLowResFwd(), setTarget(), getTarget(), and stopMotor().
   void setTargetLowResRev(uint8_t target)
   {
     if (target > 127) { target = 127; }
     commandW7(JrkG2Command::SetTargetLowResRev, target);
   }
 
-  /// Sets the target of the Jrk to a value in the range 0-127 that maps to a
-  /// 12-bit target of 2048 or greater.
+  /// Sets the target of the Jrk based on a value in the range 0 to 127 that
+  /// maps to a 12-bit target of 2048 or greater.
   ///
   /// If the feedback mode is Analog or Tachometer, then the formula is
   /// Target = 2048 + 16 * value.
   ///
   /// If the feedback mode is None (speed control mode), then the formula is
-  /// Target = 2048 + (600 / 127) * magnitude.  This means that a magnitude of
-  /// 127 will set the duty cycle target to full-speed reverse (-600), while a
-  /// magnitude of zero will make the motor stop.
+  /// Target = 2048 + (600 / 127) * value.  This means that a value of 127 will
+  /// set the duty cycle target to full-speed reverse (-600), while a value of
+  /// zero will make the motor stop.
   ///
   /// Example usage:
   /// ```
   /// jrkG2.setTargetLowResFwd(100);
   /// ```
   ///
-  /// This function sends a "Set target Low Resolution Forward" command to the
-  /// Jrk G2.  TODO: error flags?
-  ///
-  /// If the input mode is not Serial, or if the command is received on a serial
-  /// interface other than the selected one (USB or UART), this command will be
-  /// silently ignored.
+  /// This function sends a "Set target low resolution forward" command to the
+  /// Jrk G2, which clears the "Awaiting command" error bit and (if the input
+  /// mode is serial) will set the jrk's input and target variables.
   ///
   /// See also setTargetLowResRev(), setTarget(), and getTarget().
   void setTargetLowResFwd(uint8_t target)
@@ -207,26 +202,29 @@ public:
     commandW7(JrkG2Command::SetTargetLowResFwd, target);
   }
 
-  /// Forces the duty cycle target of the Jrk to a value in the range -600 to
-  /// +600.  This overrides the duty cycle target produced by the Jrk's PID
-  /// algorithm (or a duty cycle target from a Set Target command if the
-  /// feedback mode is None), but the Jrk's actual duty cycle output will still
-  /// be subject to acceleration and deceleration limits. TODO: how about duty cycle limit?
+  /// Forces the duty cycle target of the Jrk to a value in the range
+  /// -600 to +600.
   ///
-  /// TODO: talk about force mode?
+  /// The Jrk will ignore the results of the usual algorithm for choosing the duty
+  /// cycle target, and instead set it to be equal to the target specified by this
+  /// command.  The Jrk will set its 'Integral' variable to 0 while in this mode.
+  ///
+  /// This is useful if the Jrk is configured to use feedback but you want to take
+  /// control of the motor for some time, while still respecting errors and motor
+  /// limits as usual.
   ///
   /// Example usage:
   /// ```
   /// jrkG2.forceDutyCycleTarget(250);
   /// ```
   ///
-  /// This function sends a "Force Duty Cycle Target" command to the Jrk G2.  TODO: error flags?
+  /// This function sends a "Force duty cycle target" command to the Jrk G2, which
+  /// clears the "Awaiting command" error bit.
   ///
-  /// If the input mode is not Serial, or if the command is received on a serial
-  /// interface other than the selected one (USB or UART), this command will be
-  /// silently ignored.
+  /// To get out of this mode, use setTarget(), setTargetLowResFwd(),
+  /// setTargetLowResRev(), forceDutyCycle(), or motorOff().
   ///
-  /// See also forceDutyCycle() and getForceMode().
+  /// See also getForceMode().
   void forceDutyCycleTarget(int16_t dutyCycle)
   {
     if (dutyCycle > 600) { dutyCycle = 600; }
@@ -235,25 +233,30 @@ public:
   }
 
   /// Forces the duty cycle of the Jrk to a value in the range -600 to +600.
-  /// This overrides the duty cycle target produced by the Jrk's PID
-  /// algorithm (or a duty cycle target from a Set Target command if the
-  /// feedback mode is None) and ignores the acceleration and deceleration
-  /// limits. TODO: how about duty cycle limit?
   ///
-  /// TODO: talk about force mode?
+  /// The jrk will ignore the results of the usual algorithm for choosing the
+  /// duty cycle, and instead set it to be equal to the value specified by this
+  /// command, ignoring all motor limits except the maximum duty cycle
+  /// parameters, and ignoring the 'Input invalid', 'Input disconnect', and
+  /// 'Feedback disconnect' errors.  This command will have an immediate effect,
+  /// regardless of the PID period.  The jrk will set its 'Integral' variable to
+  /// 0 while in this mode.
+  ///
+  /// This is useful if the jrk is configured to use feedback but you want to take
+  /// control of the motor for some time, without respecting most motor limits.
   ///
   /// Example usage:
   /// ```
   /// jrkG2.forceDutyCycle(250);
   /// ```
   ///
-  /// This function sends a "Force Duty Cycle" command to the Jrk G2.  TODO: error flags?
+  /// This function sends a "Force duty cycle" command to the Jrk G2, which
+  /// clears the "Awaiting command" error bit.
   ///
-  /// If the input mode is not Serial, or if the command is received on a serial
-  /// interface other than the selected one (USB or UART), this command will be
-  /// silently ignored.
+  /// To get out of this mode, use setTarget(), setTargetLowResFwd(),
+  /// setTargetLowResRev(), forceDutyCycleTarget(), or motorOff().
   ///
-  /// See also forceDutyCycleTarget() and getForceMode().
+  /// See also getForceMode().
   void forceDutyCycle(int16_t dutyCycle)
   {
     if (dutyCycle > 600) { dutyCycle = 600; }
@@ -261,19 +264,20 @@ public:
     commandWs14(JrkG2Command::ForceDutyCycle, dutyCycle);
   }
 
-  /// Turns the motor off.  The Jrk can be configured to either brake or coast
-  /// while the motor is off. TODO: does deceleration apply?
+
+  /// Turns the motor off.
+  ///
+  /// This function sends a "Motor off" command to the Jrk, which sets the
+  /// "Awaiting command" error bit.  The Jrk will respect the configured
+  /// deceleration limit while decelerating to a duty cycle of 0, unless the
+  /// "Awaiting command" error has been configured as a hard error.  Once the duty
+  /// cycle reaches zero, the Jrk will either brake or coast.
   ///
   /// Example usage:
   /// ```
   /// jrkG2.motorOff();
   /// ```
-  ///
-  /// This function sends a "Motor off" command to the Jrk G2.  TODO: error flags?
-  ///
-  /// If the input mode is not Serial, or if the command is received on a serial
-  /// interface other than the selected one (USB or UART), this command will be
-  /// silently ignored.
+  // TODO: rename to stopMotor()
   void motorOff()
   {
     commandQuick(JrkG2Command::MotorOff);
