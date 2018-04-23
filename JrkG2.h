@@ -1393,6 +1393,4 @@ private:
     uint8_t length, void * buffer);
   void segmentWrite(JrkG2Command cmd, uint8_t offset,
     uint8_t length, void * buffer) ;
-
-  void delayAfterRead();
 };

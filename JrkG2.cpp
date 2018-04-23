@@ -152,13 +152,11 @@ uint8_t JrkG2I2C::commandR8(uint8_t cmd)
   if (byteCount != 1)
   {
     _lastError = JrkG2CommReadError;
-    delayAfterRead();
     return 0;
   }
 
   _lastError = 0;
   uint8_t val = Wire.read();
-  delayAfterRead();
   return val;
 }
 
@@ -173,14 +171,12 @@ uint16_t JrkG2I2C::commandR16(uint8_t cmd)
   if (byteCount != 2)
   {
     _lastError = JrkG2CommReadError;
-    delayAfterRead();
     return 0;
   }
 
   _lastError = 0;
   uint8_t valL = Wire.read();
   uint8_t valH = Wire.read();
-  delayAfterRead();
   return (uint16_t)valL | ((uint16_t)valH << 8);
 }
 
@@ -204,7 +200,6 @@ void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
   {
     _lastError = JrkG2CommReadError;
     memset(buffer, 0, length);
-    delayAfterRead();
     return;
   }
 
@@ -213,7 +208,6 @@ void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
   {
     ((uint8_t *)buffer)[i] = Wire.read();
   }
-  delayAfterRead();
 }
 
 void JrkG2I2C::segmentWrite(JrkG2Command cmd, uint8_t offset,
@@ -228,11 +222,4 @@ Wire.beginTransmission(_address);
     Wire.write(((uint8_t *)buffer)[i]);
   }
   _lastError = Wire.endTransmission(false); // no stop (repeated start)
-}
-
-// For reliable I2C operation, the Jrk G2 requires the bus to stay idle for 2 ms
-// after any read is completed. TODO still valid?
-void JrkG2I2C::delayAfterRead()
-{
-  delay(2);
 }
