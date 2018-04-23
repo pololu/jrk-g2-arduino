@@ -505,16 +505,16 @@ public:
   }
 
   /// Gets the raw pulse width measured on the Jrk's RC input, in units of
-  /// twelfths of a microsecond.  TODO check units
+  /// twelfths of a microsecond.
   ///
-  /// Returns JrkG2InputNull if the RC input is missing or invalid.  TODO still valid?
+  /// Returns 0 if the RC input is missing or invalid.
   ///
   /// Example usage:
   /// ```
   /// uint16_t pulseWidth = jrk.getRCPulseWidth();
-  /// if (pulseWidth != JrkG2InputNull && pulseWidth > 18000)
+  /// if (pulseWidth != 0 && pulseWidth < 18000)
   /// {
-  ///   // Pulse width is greater than 1500 microseconds.
+  ///   // Input is valid and pulse width is less than 1500 microseconds.
   /// }
   /// ```
   uint16_t getRCPulseWidth()
