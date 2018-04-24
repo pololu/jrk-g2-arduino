@@ -145,7 +145,7 @@ uint8_t JrkG2I2C::commandR8(uint8_t cmd)
 {
   Wire.beginTransmission(_address);
   Wire.write((uint8_t)cmd);
-  _lastError = Wire.endTransmission(false); // no stop (repeated start)
+  _lastError = Wire.endTransmission(false);  // no stop (repeated start)
   if (_lastError) { return 0; }
 
   uint8_t byteCount = Wire.requestFrom(_address, (uint8_t)1);
@@ -164,7 +164,7 @@ uint16_t JrkG2I2C::commandR16(uint8_t cmd)
 {
   Wire.beginTransmission(_address);
   Wire.write((uint8_t)cmd);
-  _lastError = Wire.endTransmission(false); // no stop (repeated start)
+  _lastError = Wire.endTransmission(false);  // no stop (repeated start)
   if (_lastError) { return 0; }
 
   uint8_t byteCount = Wire.requestFrom(_address, (uint8_t)2);
@@ -186,7 +186,7 @@ void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
   Wire.beginTransmission(_address);
   Wire.write((uint8_t)cmd);
   Wire.write(offset);
-  _lastError = Wire.endTransmission(false); // no stop (repeated start)
+  _lastError = Wire.endTransmission(false);  // no stop (repeated start)
   if (_lastError)
   {
     // Set the buffer bytes to 0 so the program will not use an uninitialized
@@ -213,7 +213,7 @@ void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
 void JrkG2I2C::segmentWrite(JrkG2Command cmd, uint8_t offset,
   uint8_t length, void * buffer)
 {
-Wire.beginTransmission(_address);
+  Wire.beginTransmission(_address);
   Wire.write((uint8_t)cmd);
   Wire.write(offset);
   Wire.write(length);
@@ -221,5 +221,5 @@ Wire.beginTransmission(_address);
   {
     Wire.write(((uint8_t *)buffer)[i]);
   }
-  _lastError = Wire.endTransmission(false); // no stop (repeated start)
+  _lastError = Wire.endTransmission();
 }
