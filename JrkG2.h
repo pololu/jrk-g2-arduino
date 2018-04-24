@@ -123,6 +123,16 @@ enum class JrkG2OptionsByte3
 class JrkG2Base
 {
 public:
+  /// Returns 0 if the last communication with the device was successful, and
+  /// non-zero if there was an error.
+  uint8_t getLastError()
+  {
+    return _lastError;
+  }
+
+  ///\name Motor control commands
+  ///@{
+
   /// Sets the target of the Jrk to a value in the range 0 to 4095.
   ///
   /// The target can represent a target duty cycle, speed, or position depending
@@ -281,6 +291,11 @@ public:
     commandQuick(JrkG2Command::MotorOff);
   }
 
+  ///@}
+
+  ///\name Variable reading commands
+  ///@{
+
   /// Gets the input variable.
   ///
   /// The input variable is a raw, unscaled value representing a measurement
@@ -433,7 +448,7 @@ public:
   /// ```
   ///
   /// It is possible to read this variable without clearing the bits in it using
-  /// a "Get variables" command, but this library currently does not support that.
+  /// a getVariables().
   ///
   /// See also getErrorFlagsOccurred().
   uint16_t getErrorFlagsHalting()
@@ -462,7 +477,7 @@ public:
   /// ```
   ///
   /// It is possible to read this variable without clearing the bits in it using
-  /// a "Get Variables" command, but this library currently does not support that.
+  /// getVariables().
   ///
   /// See also getErrorFlagsHalting().
   uint16_t getErrorFlagsOccurred()
@@ -667,6 +682,10 @@ public:
   {
     return commandR8(JrkG2Command::GetCurrentChoppingOccurrenceCount);
   }
+  ///@}
+
+  ///\name RAM settings commands
+  ///@{
 
   /// Sets or clears the "Reset integral" setting in the Jrk's RAM settings.
   ///
@@ -1293,6 +1312,11 @@ public:
     setRAMSetting16x2(SettingOffset::SoftCurrentLimitForward, current, current);
   }
 
+  ///@}
+
+  ///\name Low-level settings and variables commands
+  ///@{
+
   /// Gets a contiguous block of settings from the Jrk G2's EEPROM.
   ///
   /// The maximum length that can be fetched is 15 bytes.
@@ -1381,12 +1405,7 @@ public:
     segmentRead(JrkG2Command::GetVariables, offset, length, buffer);
   }
 
-  /// Returns 0 if the last communication with the device was successful, and
-  /// non-zero if there was an error.
-  uint8_t getLastError()
-  {
-    return _lastError;
-  }
+  ///@}
 
 protected:
   /// Zero if the last communication with the device was successful, non-zero
