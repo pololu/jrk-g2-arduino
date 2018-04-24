@@ -34,14 +34,14 @@ enum class JrkG2Error
   InputInvalid        = 3,
   InputDisconnect     = 4,
   FeedbackDisconnect  = 5,
-  MaxCurrentExceeded  = 6,
+  SoftOvercurrent     = 6,
   SerialSignal        = 7,
   SerialOverrun       = 8,
   SerialBufferFull    = 9,
   SerialCrc           = 10,
   SerialProtocol      = 11,
   SerialTimeout       = 12,
-  Overcurrent         = 13,
+  HardOvercurrent     = 13,
 };
 
 /// This enum defines the Jrk G2 command bytes which are used for its serial and
