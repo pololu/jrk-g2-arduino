@@ -678,28 +678,41 @@ public:
   /// ```
   /// // Get the Jrk's serial device number.
   /// uint8_t deviceNumber;
-  /// jrk.getSetting(0x28, 1, &deviceNumber);
+  /// jrk.getEepromSetting(0x28, 1, &deviceNumber);
   /// ```
   ///
-  /// This library does not attempt to interpret the settings and say what they
-  /// mean.  For information on how the settings are encoded in the Jrk's
-  /// EEPROM, see the Jrk G2 user's guide. TODO this might change
-  void getSetting(uint8_t offset, uint8_t length, uint8_t * buffer)
+  /// For most settings, this library does not attempt to interpret the settings
+  /// and say what they mean.  For information on how the settings are encoded
+  /// in the Jrk's EEPROM, see the Jrk G2 user's guide.
+  void getEepromSetting(uint8_t offset, uint8_t length, uint8_t * buffer)
   {
     segmentRead(JrkG2Command::GetEepromSettings, offset, length, buffer);
   }
+  // TODO: rename to getEepromSettings plural, make offset be an enum class
 
-  /// Sets or clears the option to reset the Jrk's error sum (integral) when
-  /// the proportional term exceeds the maximum duty cycle.  When enabled, this
-  /// can help limit integral wind-up, or the uncontrolled growth of the
-  /// integral when the feedback system is temporarily unable to keep the error
-  /// small. This might happen, for example, when the target is changing
-  /// quickly.
+  // TODO: getRAMSettings
+  // TODO: setRAMSettings
+
+  /// Sets or clears the "Reset integral" setting in the Jrk's RAM settings.
+  ///
+  /// If this setting is set to true, the PID algorithm will reset the integral
+  /// variable (also known as error sum) when the absolute value of the
+  /// proportional term exceeds 600.
+  ///
+  /// When enabled, this can help limit integral wind-up, or the uncontrolled
+  /// growth of the integral when the feedback system is temporarily unable to
+  /// keep the error small. This might happen, for example, when the target is
+  /// changing quickly.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getResetIntegral().
   void setResetIntegral(bool reset)
   {
     uint8_t tmp = getOvrSetting8(OvrSettingOffset::OptionsByte3);
+    if (getLastError()) { return; }
     if (reset)
     {
       tmp |= 1 << (uint8_t)JrkG2OptionsByte3::ResetIntegral;
@@ -711,23 +724,31 @@ public:
     setOvrSetting8(OvrSettingOffset::OptionsByte3, tmp);
   }
 
-  /// Returns true if the option is enabled to reset the Jrk's integral when
-  /// the proportional term exceeds the maximum duty cycle.
+  /// Gets the "Reset integral" setting from the Jrk's RAM settings.
   ///
-  /// See also getResetIntegral().
+  /// See also setResetIntegral().
   bool getResetIntegral()
   {
-    return getOvrSetting8(OvrSettingOffset::OptionsByte3) >> (uint8_t)JrkG2OptionsByte3::ResetIntegral & 1;
+    return getOvrSetting8(OvrSettingOffset::OptionsByte3) >>
+      (uint8_t)JrkG2OptionsByte3::ResetIntegral & 1;
   }
 
-  /// Sets or clears the option for the Jrk's motor driver to coast when the
-  /// motor is off. If this option is not set, the motor will instead brake when
-  /// off.
+  /// Sets or clears the "Coast when off" setting in the Jrk's RAM settings.
+  ///
+  /// By default, the Jrk drives both motor outputs low when the motor is
+  /// stopped (duty cycle is zero), causing it to brake.  If enabled, this
+  /// setting causes it to instead tri-state both outputs, making the motor
+  /// coast.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getCoastWhenOff().
   void setCoastWhenOff(bool coast)
   {
     uint8_t tmp = getOvrSetting8(OvrSettingOffset::OptionsByte3);
+    if (getLastError()) { return; }
     if (coast)
     {
       tmp |= 1 << (uint8_t)JrkG2OptionsByte3::CoastWhenOff;
@@ -739,8 +760,7 @@ public:
     setOvrSetting8(OvrSettingOffset::OptionsByte3, tmp);
   }
 
-  /// Returns true if the option is enabled for the Jrk's motor driver to coast
-  /// when the motor is off.
+  /// Gets the "Coast when off" setting from the Jrk's RAM settings.
   ///
   /// See also setCoastWhenOff().
   bool getCoastWhenOff()
@@ -748,20 +768,25 @@ public:
     return getOvrSetting8(OvrSettingOffset::OptionsByte3) >> (uint8_t)JrkG2OptionsByte3::CoastWhenOff & 1;
   }
 
-  /// Sets the coefficient for the proportional term of the Jrk's PID algorithm.
-  /// This term is proportional to the error (the difference between the scaled
-  /// feedback and target).  The coefficient takes the form
+  /// Sets the proportional coefficient in the Jrk's RAM settings.
+  ///
+  /// This coefficient is used in the Jrk's PID algorithm.  The coefficient
+  /// takes the form:
   ///
   /// multiplier / (2 ^ exponent)
   ///
-  /// The multiplier can range from 0-1023, and the exponent can range from
-  /// 0-18.
+  /// The multiplier can range from 0 to 1023, and the exponent can range
+  /// from 0 to 18.
   ///
   /// Example usage:
   /// ```
   /// // Set the proportional coefficient to 1.125 (9/(2^3)).
   /// jrk.setProportionalCoefficient(9, 3);
   /// ```
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getProportionalMultiplier() and getProportionalExponent(), as
   /// well as setIntegralCoefficient() and setDerivativeCoefficient().
@@ -770,8 +795,8 @@ public:
     setPIDCoefficient(OvrSettingOffset::ProportionalMultiplier, multiplier, exponent);
   }
 
-  /// Gets the multiplier part of the coefficient for the proportional term of
-  /// the Jrk's PID algorithm.
+  /// Gets the multiplier part of the proportional coefficient from the Jrk's
+  /// RAM settings.
   ///
   /// See also getProportionalExponent() and setProportionalCoefficient().
   uint16_t getProportionalMultiplier()
@@ -779,8 +804,8 @@ public:
     return getOvrSetting16(OvrSettingOffset::ProportionalMultiplier);
   }
 
-  /// Gets the exponent part of the coefficient for the proportional term of the
-  /// Jrk's PID algorithm.
+  /// Gets the exponent part of the proportional coefficient from the Jrk's RAM
+  /// settings.
   ///
   /// See also getProportionalMultiplier() and setProportionalCoefficient().
   uint8_t getProportionalExponent()
@@ -788,14 +813,19 @@ public:
     return getOvrSetting8(OvrSettingOffset::ProportionalExponent);
   }
 
-  /// Sets the coefficient for the integral term of the Jrk's PID algorithm.
-  /// This term is proportional to the accumulated sum of the error over time.
-  /// The coefficient takes the form
+  /// Sets the integral coefficient in the Jrk's RAM settings.
+  ///
+  /// This coefficient is used in the Jrk's PID algorithm.  The coefficient
+  /// takes the form:
   ///
   /// multiplier / (2 ^ exponent)
   ///
-  /// The multiplier can range from 0-1023, and the exponent can range from
-  /// 0-18.
+  /// The multiplier can range from 0 to 1023, and the exponent can range
+  /// from 0 to 18.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getIntegralMultiplier() and getIntegralExponent(), as
   /// well as setProportionalCoefficient() and setDerivativeCoefficient().
@@ -804,8 +834,8 @@ public:
     setPIDCoefficient(OvrSettingOffset::IntegralMultiplier, multiplier, exponent);
   }
 
-  /// Gets the multiplier part of the coefficient for the integral term of the
-  /// Jrk's PID algorithm.
+  /// Gets the multiplier part of the integral coefficient from the Jrk's
+  /// RAM settings.
   ///
   /// See also getIntegralExponent() and setIntegralCoefficient().
   uint16_t getIntegralMultiplier()
@@ -813,8 +843,8 @@ public:
     return getOvrSetting16(OvrSettingOffset::IntegralMultiplier);
   }
 
-  /// Gets the exponent part of the coefficient for the integral term of the
-  /// Jrk's PID algorithm.
+  /// Gets the exponent part of the integral coefficient from the Jrk's
+  /// RAM settings.
   ///
   /// See also getIntegralMultiplier() and setIntegralCoefficient().
   uint8_t getIntegralExponent()
@@ -822,15 +852,19 @@ public:
     return getOvrSetting8(OvrSettingOffset::IntegralExponent);
   }
 
-  /// Sets the coefficient for the integral term of the Jrk's PID algorithm.
-  /// This term is proportional to the difference of the error relative to the
-  /// previous PID period (or the error's rate of change).  The coefficient
-  /// takes the form
+  /// Sets the derivative coefficient in the Jrk's RAM settings.
+  ///
+  /// This coefficient is used in the Jrk's PID algorithm.  The coefficient
+  /// takes the form:
   ///
   /// multiplier / (2 ^ exponent)
   ///
-  /// The multiplier can range from 0-1023, and the exponent can range from
-  /// 0-18.
+  /// The multiplier can range from 0 to 1023, and the exponent can range
+  /// from 0 to 18.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getDerivativeMultiplier() and getDerivativeExponent(), as
   /// well as setProportionalCoefficient() and setIntegralCoefficient().
@@ -839,8 +873,8 @@ public:
     setPIDCoefficient(OvrSettingOffset::DerivativeMultiplier, multiplier, exponent);
   }
 
-  /// Gets the multiplier part of the coefficient for the derivative term of the
-  /// Jrk's PID algorithm.
+  /// Gets the multiplier part of the derivative coefficient from the
+  /// Jrk's RAM settings.
   ///
   /// See also getDerivativeExponent() and setDerivativeCoefficient().
   uint16_t getDerivativeMultiplier()
@@ -848,8 +882,8 @@ public:
     return getOvrSetting16(OvrSettingOffset::DerivativeMultiplier);
   }
 
-  /// Gets the exponent part of the coefficient for the derivative term of the
-  /// Jrk's PID algorithm.
+  /// Gets the exponent part of the derivative coefficient from the
+  /// Jrk's RAM settings.
   ///
   /// See also getDerivativeMultiplier() and setDerivativeCoefficient().
   uint8_t getDerivativeExponent()
@@ -857,11 +891,16 @@ public:
     return getOvrSetting8(OvrSettingOffset::DerivativeExponent);
   }
 
-  /// Sets the PID period of the Jrk, which is the rate at which it runs through
-  /// all of its calculations, in milliseconds.  Note that a higher PID period
-  /// will result in a more slowly changing integral and a higher derivative, so
-  /// the two corresponding PID coefficients might need to be adjusted whenever
-  /// the PID period is changed.
+  /// Sets the PID period in the Jrk's RAM settings.
+  ///
+  /// This is the rate at which the Jrk runs through all of its calculations, in
+  /// milliseconds.  Note that a higher PID period will result in a more slowly
+  /// changing integral and a higher derivative, so the two corresponding PID
+  /// coefficients might need to be adjusted whenever the PID period is changed.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getPIDPeriod().
   void setPIDPeriod(uint16_t period)
@@ -869,7 +908,7 @@ public:
     setOvrSetting16(OvrSettingOffset::PIDPeriod, period);
   }
 
-  /// Gets the PID period of the Jrk, in milliseconds.
+  /// Gets the PID period from the Jrk's RAM settings, in milliseconds.
   ///
   /// See also setPIDPeriod().
   uint16_t getPIDPeriod()
@@ -877,13 +916,15 @@ public:
     return getOvrSetting16(OvrSettingOffset::PIDPeriod);
   }
 
-  /// Sets the Jrk's integral limit, which limits the magnitude of the integral.
-  /// This can help limit integral wind-up.  The limit can range from 0-32767.
+  /// Sets the integral limit in the Jrk's RAM settings.
   ///
-  /// Note that the maximum value of the integral term can be computed as the
-  /// integral coefficient times the integral limit: if this is very small
-  /// compared to 600 (maximum duty cycle), the integral term will have at most
-  /// a very small effect on the duty cycle.
+  /// The PID algorithm prevents the absolute value of the integral variable
+  /// (also known as error sum) from exceeding this limit.  This can help limit
+  /// integral wind-up.  The limit can range from 0 to 32767.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getIntegralLimit().
   void setIntegralLimit(uint16_t limit)
@@ -891,7 +932,7 @@ public:
     setOvrSetting16(OvrSettingOffset::IntegralLimit, limit);
   }
 
-  /// Gets the Jrk's integral limit.
+  /// Gets the integral limit from the Jrk's RAM settings.
   ///
   /// See also setIntegralLimit().
   uint16_t getIntegralLimit()
@@ -899,13 +940,12 @@ public:
     return getOvrSetting16(OvrSettingOffset::IntegralLimit);
   }
 
-  /// Sets the Jrk's maximum duty cycle while its feedback is out of range.
-  /// This is an option to limit possible damage to systems by reducing the
-  /// maximum duty cycle whenever the feedback value is beyond the absolute
-  /// minimum and maximum values. This can be used, for example, to slowly bring
-  /// a system back into its valid range of operation when it is dangerously
-  /// near a limit. The Feedback disconnect error should be disabled when this
-  /// option is used.
+  /// Sets the maximum duty cycle while feedback is out of range in the Jrk's
+  /// RAM settings.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getMaxDutyCycleWhileFeedbackOutOfRange().
   void setMaxDutyCycleWhileFeedbackOutOfRange(uint16_t duty)
@@ -913,7 +953,8 @@ public:
     setOvrSetting16(OvrSettingOffset::MaxDutyCycleWhileFeedbackOutOfRange, duty);
   }
 
-  /// Sets the Jrk's maximum duty cycle while its feedback is out of range.
+  /// Gets the maximum duty cycle while feedback is out of range from the Jrk's RAM
+  /// settings.
   ///
   /// See also setMaxDutyCycleWhileFeedbackOutOfRange().
   uint16_t getMaxDutyCycleWhileFeedbackOutOfRange()
@@ -921,179 +962,251 @@ public:
     return getOvrSetting16(OvrSettingOffset::MaxDutyCycleWhileFeedbackOutOfRange);
   }
 
-  /// Sets the Jrk's maximum acceleration in the forward direction.  This is the
-  /// maximum amount in a single PID period that the the duty cycle can increase
-  /// by in the forward direction.
+  /// Sets the maximum acceleration in the forward direction in the
+  /// Jrk's RAM settings.
   ///
-  /// See also getMaxAccelerationForward(), setMaxAccelerationReverse(), and
-  /// setMaxDecelerationForward().
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also getMaxAccelerationForward(), setMaxAccelerationReverse(),
+  /// setMaxAcceleration(), and setMaxDecelerationForward().
   void setMaxAccelerationForward(uint16_t accel)
   {
     setOvrSetting16(OvrSettingOffset::MaxAccelerationForward, accel);
   }
 
-  /// Gets the Jrk's maximum acceleration in the forward direction.
+  /// Gets the maximum acceleration in the forward direction from the
+  /// Jrk's RAM settings.
   ///
-  /// See also setMaxAccelerationForward(), getMaxAccelerationReverse(), and
-  /// getMaxDecelerationForward().
+  /// See also setMaxAccelerationForward().
   uint16_t getMaxAccelerationForward()
   {
     return getOvrSetting16(OvrSettingOffset::MaxAccelerationForward);
   }
 
-  /// Sets the Jrk's maximum acceleration in the reverse direction.  This is the
-  /// maximum amount in a single PID period that the the duty cycle can increase
-  /// by in the reverse direction.
+  /// Sets the maximum acceleration in the reverse direction in the
+  /// Jrk's RAM settings.
   ///
-  /// See also getMaxAccelerationReverse(), setMaxAccelerationForward(), and
-  /// setMaxDecelerationReverse().
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also getMaxAccelerationReverse(), setMaxAccelerationForward(),
+  /// setMaxAcceleration(), and setMaxDecelerationReverse().
   void setMaxAccelerationReverse(uint16_t accel)
   {
     setOvrSetting16(OvrSettingOffset::MaxAccelerationReverse, accel);
   }
 
-  /// Gets the Jrk's maximum acceleration in the reverse direction.
+  /// Gets the maximum acceleration in the reverse direction from the
+  /// Jrk's RAM settings.
   ///
-  /// See also setMaxAccelerationReverse(), getMaxAccelerationForward(), and
-  /// getMaxDecelerationReverse().
+  /// See also setMaxAccelerationReverse().
   uint16_t getMaxAccelerationReverse()
   {
     return getOvrSetting16(OvrSettingOffset::MaxAccelerationReverse);
   }
 
-  /// Sets the Jrk's maximum accelerations in both directions.
-  void setMaxAccelerations(uint16_t forwardAccel, uint16_t reverseAccel)
+  /// Sets the maximum acceleration in both directions in the
+  /// Jrk's RAM settings.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also setMaxAccelerationForward(), setMaxAccelerationReverse(),
+  /// setMaxDeceleration().
+  void setMaxAcceleration(uint16_t accel)
   {
-    setOvrSetting16x2(OvrSettingOffset::MaxAccelerationForward, forwardAccel, reverseAccel);
+    setOvrSetting16x2(OvrSettingOffset::MaxAccelerationForward, accel, accel);
   }
 
-  /// Sets the Jrk's maximum deceleration in the forward direction.  This is the
-  /// maximum amount in a single PID period that the the duty cycle can decrease
-  /// by in the forward direction.
+  /// Sets the maximum deceleration in the forward direction in the Jrk's RAM
+  /// settings.
   ///
-  /// See also getMaxDecelerationForward(), setMaxDecelerationReverse(), and
-  /// setMaxAccelerationForward().
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also getMaxDecelerationForward(), setMaxDecelerationReverse(),
+  /// setMaxDeceleration(), and setMaxAccelerationForward().
   void setMaxDecelerationForward(uint16_t decel)
   {
     setOvrSetting16(OvrSettingOffset::MaxDecelerationForward, decel);
   }
 
-  /// Gets the Jrk's maximum deceleration in the forward direction.
+  /// Gets the maximum deceleration in the forward direction from the Jrk's RAM
+  /// settings.
   ///
-  /// See also getMaxDecelerationForward(), setMaxDecelerationReverse(), and
-  /// setMaxAccelerationForward().
+  /// See also setMaxDecelerationForward().
   uint16_t getMaxDecelerationForward()
   {
     return getOvrSetting16(OvrSettingOffset::MaxDecelerationForward);
   }
 
-  /// Sets the Jrk's maximum deceleration in the reverse direction.  This is the
-  /// maximum amount in a single PID period that the the duty cycle can decrease
-  /// by in the reverse direction.
+  /// Sets the maximum deceleration in the reverse direction in the
+  /// Jrk's RAM settings.
   ///
-  /// See also getMaxDecelerationReverse(), setMaxDecelerationForward(), and
-  /// setMaxAccelerationReverse().
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also getMaxDecelerationReverse(), setMaxDecelerationForward(),
+  /// setMaxDeceleration(), and setMaxAccelerationReverse().
   void setMaxDecelerationReverse(uint16_t decel)
   {
     setOvrSetting16(OvrSettingOffset::MaxDecelerationReverse, decel);
   }
 
-  /// Gets the Jrk's maximum deceleration in the reverse direction.
+  /// Gets the maximum deceleration in the reverse direction from the Jrk's RAM
+  /// settings.
   ///
-  /// See also setMaxDecelerationReverse(), getMaxDecelerationForward(), and
-  /// getMaxAccelerationReverse().
+  /// See also setMaxDecelerationReverse().
   uint16_t getMaxDecelerationReverse()
   {
     return getOvrSetting16(OvrSettingOffset::MaxDecelerationReverse);
   }
 
-  /// Sets the Jrk's maximum decelerations in both directions.
-  void setMaxDecelerations(uint16_t forwardDecel, uint16_t reverseDecel)
+  /// Sets the maximum deceleration in both directions in the
+  /// Jrk's RAM settings.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also setMaxDecelerationForward(), setMaxDecelerationReverse(),
+  /// setMaxAcceleration().
+  void setMaxDeceleration(uint16_t decel)
   {
-    setOvrSetting16x2(OvrSettingOffset::MaxDecelerationForward, forwardDecel, reverseDecel);
+    setOvrSetting16x2(OvrSettingOffset::MaxDecelerationForward, decel, decel);
   }
 
-  /// Sets the Jrk's maximum duty cycle in the forward direction.
+  /// Sets the maximum duty cycle in the forward direction in the
+  /// Jrk's RAM settings.
   ///
-  /// See also getMaxDutyCycleForward() and setMaxDutyCycleReverse().
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also getMaxDutyCycleForward(), setMaxDutyCycleReverse().
   void setMaxDutyCycleForward(uint16_t duty)
   {
     setOvrSetting16(OvrSettingOffset::MaxDutyCycleForward, duty);
   }
 
-  /// Gets the Jrk's maximum duty cycle in the forward direction.
+  /// Gets the maximum duty cycle in the forward direction from the Jrk's RAM
+  /// settings.
   ///
-  /// See also setMaxDutyCycleForward() and getMaxDutyCycleReverse().
+  /// See also setMaxDutyCycleForward().
   uint16_t getMaxDutyCycleForward()
   {
     return getOvrSetting16(OvrSettingOffset::MaxDutyCycleForward);
   }
 
-  /// Sets the Jrk's maximum duty cycle in the reverse direction.
+  /// Sets the maximum duty cycle in the reverse direction in the
+  /// Jrk's RAM settings.
   ///
-  /// See also getMaxDutyCycleReverse() and setMaxDutyCycleForward().
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also getMaxDutyCycleReverse(), setMaxDutyCycleForard().
   void setMaxDutyCycleReverse(uint16_t duty)
   {
     setOvrSetting16(OvrSettingOffset::MaxDutyCycleReverse, duty);
   }
 
-  /// Gets the Jrk's maximum duty cycle in the reverse direction.
+  /// Gets the maximum duty cycle in the reverse direction from the
+  /// Jrk's RAM settings.
   ///
-  /// See also setMaxDutyCycleReverse() and getMaxDutyCycleForward().
+  /// See also setMaxDutyCycleReverse().
   uint16_t getMaxDutyCycleReverse()
   {
     return getOvrSetting16(OvrSettingOffset::MaxDutyCycleReverse);
   }
 
-  /// Sets the Jrk's maximum duty cycles in both directions.
-  void setMaxDutyCycles(uint16_t forwardDuty, uint16_t reverseDuty)
-  {
-    setOvrSetting16x2(OvrSettingOffset::MaxDutyCycleForward, forwardDuty, reverseDuty);
-  }
-
-  /// Sets the Jrk's current limit code for driving in the forward direction.  TODO check/fix
+  /// Sets the maximum duty cycle for both directions in the
+  /// Jrk's RAM settings.
   ///
-  /// See also getCurrentLimitCodeForward() and setCurrentLimitCodeReverse().
-  void setCurrentLimitCodeForward(uint16_t code)
-  {
-    setOvrSetting16(OvrSettingOffset::CurrentLimitCodeForward, code);
-  }
-
-  /// Gets the Jrk's current limit code for driving in the forward direction.  TODO check/fix
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
-  /// See also setCurrentLimitCodeForward() and getCurrentLimitCodeReverse().
-  uint16_t getCurrentLimitCodeForward()
+  /// See also setMaxDutyCycleForward(), setMaxDutyCycleReverse().
+  void setMaxDutyCycle(uint16_t duty)
   {
-    return getOvrSetting16(OvrSettingOffset::CurrentLimitCodeForward);
+    setOvrSetting16x2(OvrSettingOffset::MaxDutyCycleForward, duty, duty);
   }
 
-  /// Sets the Jrk's current limit code for driving in the reverse direction.  TODO check/fix
+  /// Sets the encoded hard current limit for driving in the forward direction
+  /// in the Jrk's RAM settings.
   ///
-  /// See also getCurrentLimitCodeReverse() and setCurrentLimitCodeForward().
-  void setCurrentLimitCodeReverse(uint16_t code)
-  {
-    setOvrSetting16(OvrSettingOffset::CurrentLimitCodeReverse, code);
-  }
-
-  /// Gets the Jrk's current limit code for driving in the reverse direction.  TODO check/fix
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
-  /// See also setCurrentLimitCodeReverse() and getCurrentLimitCodeForward().
-  uint16_t getCurrentLimitCodeReverse()
+  /// See also getEncodedHardCurrentLimitForward() and
+  /// setEncodedHardCurrentLimitReverse().
+  void setEncodedHardCurrentLimitForward(uint16_t encoded_limit)
   {
-    return getOvrSetting16(OvrSettingOffset::CurrentLimitCodeReverse);
+    setOvrSetting16(OvrSettingOffset::EncodedHardCurrentLimitForward,
+      encoded_limit);
   }
 
-  /// Sets the Jrk's current limit codes for driving in both directions.
-  void setCurrentLimitCodes(uint16_t forwardCode, uint16_t reverseCode)
+  /// Gets the encoded hard current limit for driving in the forward direction
+  /// from the Jrk's RAM settings.
+  ///
+  /// See also setEncodedHardCurrentLimitForward().
+  uint16_t getEncodedHardCurrentLimitForward()
   {
-    setOvrSetting16x2(OvrSettingOffset::CurrentLimitCodeForward, forwardCode, reverseCode);
+    return getOvrSetting16(OvrSettingOffset::EncodedHardCurrentLimitForward);
   }
 
-  /// Sets the Jrk's brake duration when switching from forward to reverse.  The
-  /// Jrk will keep the motor at a duty cycle 0 for the specified time when
-  /// switching directions.  This feature is most useful for large motors with
-  /// high-inertia loads used with frequency feedback or speed control mode (no
-  /// feedback).
+  /// Sets the encoded hard current limit for driving in the reverse direction
+  /// in the Jrk's RAM settings
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also getEncodedHardCurrentLimitReverse() and
+  /// setEncodedHardCurrentLimitForward().
+  void setEncodedHardCurrentLimitReverse(uint16_t code)
+  {
+    setOvrSetting16(OvrSettingOffset::EncodedHardCurrentLimitReverse, code);
+  }
+
+  /// Gets the encoded hard current limit for driving in the reverse direction
+  /// from the Jrk's RAM settings.
+  ///
+  /// See also setEncodedHardCurrentLimitReverse().
+  uint16_t getEncodedHardCurrentLimitReverse()
+  {
+    return getOvrSetting16(OvrSettingOffset::EncodedHardCurrentLimitReverse);
+  }
+
+  /// Sets the encoded hard current limit for both directions in the Jrk's RAM
+  /// settings.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also setEncodedHardCurrentLimitForward(),
+  /// setEncodedHardCurrentLimitReverse(), and setSoftCurrentLimit().
+  void setEncodedHardCurrentLimit(uint16_t encoded_limit)
+  {
+    setOvrSetting16x2(OvrSettingOffset::EncodedHardCurrentLimitForward,
+      encoded_limit, encoded_limit);
+  }
+
+  /// Sets the brake duration when switching from forward to reverse in the
+  /// Jrk's RAM settings, in units of 5 ms.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getBrakeDurationForward() and setBrakeDurationReverse().
   void setBrakeDurationForward(uint8_t duration)
@@ -1101,15 +1214,21 @@ public:
     setOvrSetting8(OvrSettingOffset::BrakeDurationForward, duration);
   }
 
-  /// Gets the Jrk's brake duration when switching from forward to reverse.
+  /// Gets the brake duration when switching from forward to reverse from the
+  /// Jrk's RAM settings, in units of 5 ms.
   ///
-  /// See also setBrakeDurationForward() and getBrakeDurationReverse().
+  /// See also setBrakeDurationForward().
   uint8_t getBrakeDurationForward()
   {
     return getOvrSetting8(OvrSettingOffset::BrakeDurationForward);
   }
 
-  /// Sets the Jrk's brake duration when switching from reverse to forward.
+  /// Sets the brake duration when switching from reverse to forward in the
+  /// Jrk's RAM settings, in units of 5 ms.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
   /// See also getBrakeDurationReverse() and setBrakeDurationForward().
   void setBrakeDurationReverse(uint8_t duration)
@@ -1117,60 +1236,84 @@ public:
     setOvrSetting8(OvrSettingOffset::BrakeDurationReverse, duration);
   }
 
-  /// Gets the Jrk's brake duration when switching from reverse to forward.
+  /// Gets the brake duration when switching from reverse to forward from the
+  /// Jrk's RAM settings, in units of 5 ms.
   ///
-  /// See also setBrakeDurationReverse() and getBrakeDurationForward().
+  /// See also setBrakeDurationReverse().
   uint8_t getBrakeDurationReverse()
   {
     return getOvrSetting8(OvrSettingOffset::BrakeDurationReverse);
   }
 
-  /// Sets the Jrk's brake durations for driving in both directions.
-  void setBrakeDurations(uint8_t forwardDuration, uint8_t reverseDuration)
-  {
-    setOvrSetting8x2(OvrSettingOffset::BrakeDurationForward, forwardDuration, reverseDuration);
-  }
-
-  /// Sets the Jrk's current limit when driving in the forward direction.  The
-  /// Jrk will adjust the duty cycle as necessary to limit the current to the
-  /// specified value.  For accurate current limiting, acceleration should be
-  /// limited; otherwise the duty cycle will tend to oscillate when the maximum
-  /// current is exceeded.  TODO check
+  /// Sets the brake duration for both directions in the Jrk's RAM settings, in
+  /// units of 5 ms.
   ///
-  /// See also getMaxCurrentForward() and setMaxCurrentReverse().
-  void setMaxCurrentForward(uint16_t current)
-  {
-    setOvrSetting16(OvrSettingOffset::MaxCurrentForward, current);
-  }
-
-  /// Gets the Jrk's current limit when driving in the forward direction.
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
-  /// See also setMaxCurrentForward() and getMaxCurrentReverse().
-  uint16_t getMaxCurrentForward()
+  /// See also setBrakeDurationForward(), setBrakeDurationReverse().
+  void setBrakeDuration(uint8_t duration)
   {
-    return getOvrSetting16(OvrSettingOffset::MaxCurrentForward);
+    setOvrSetting8x2(OvrSettingOffset::BrakeDurationForward, duration, duration);
   }
 
-  /// Sets the Jrk's current limit when driving in the reverse direction.
+  /// Sets the soft current limit when driving in the forward direction in the
+  /// Jrk's RAM settings, in units of mA.
   ///
-  /// See also getMaxCurrentReverse() and setMaxCurrentForward().
-  void setMaxCurrentReverse(uint16_t current)
-  {
-    setOvrSetting16(OvrSettingOffset::MaxCurrentReverse, current);
-  }
-
-  /// Gets the Jrk's current limit when driving in the reverse direction.
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
   ///
-  /// See also setMaxCurrentReverse() and getMaxCurrentForward().
-  uint16_t getMaxCurrentReverse()
+  /// See also getSoftCurrentLimitForward() and setSoftCurrentLimitReverse().
+  void setSoftCurrentLimitForward(uint16_t current)
   {
-    return getOvrSetting16(OvrSettingOffset::MaxCurrentReverse);
+    setOvrSetting16(OvrSettingOffset::SoftCurrentLimitForward, current);
   }
 
-  /// Sets the Jrk's current limits for driving in both directions.
-  void setMaxCurrents(uint16_t forwardCurrent, uint16_t reverseCurrent)
+  /// Gets the soft current limit when driving in the forward direction from the
+  /// Jrk's RAM settings, in units of mA.
+  ///
+  /// See also setSoftCurrentLimitForward().
+  uint16_t getSoftCurrentLimitForward()
   {
-    setOvrSetting16x2(OvrSettingOffset::MaxCurrentForward, forwardCurrent, reverseCurrent);
+    return getOvrSetting16(OvrSettingOffset::SoftCurrentLimitForward);
+  }
+
+  /// Sets the soft current limit when driving in the reverse direction in the
+  /// Jrk's RAM settings, in units of mA.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also getSoftCurrentLimitReverse() and setSoftCurrentLimitForward().
+  void setSoftCurrentLimitReverse(uint16_t current)
+  {
+    setOvrSetting16(OvrSettingOffset::SoftCurrentLimitReverse, current);
+  }
+
+  /// Gets the soft current limit when driving in the reverse direction from the
+  /// Jrk's RAM settings, in units of mA.
+  ///
+  /// See also setSoftCurrentLimitReverse().
+  uint16_t getSoftCurrentLimitReverse()
+  {
+    return getOvrSetting16(OvrSettingOffset::SoftCurrentLimitReverse);
+  }
+
+  /// Sets the soft current limit for driving in both directions in the Jrk's
+  /// RAM settings, in units of mA.
+  ///
+  /// You would normally configure this setting ahead of time using the Jrk G2
+  /// Configuration Utility, but this function allows you to change it
+  /// temporarily on the fly.
+  ///
+  /// See also setSoftCurrentLimitForward() and setSoftCurrentLimitReverse(),
+  /// setEncodedHardCurrentLimit().
+  void setSoftCurrentLimit(uint16_t current)
+  {
+    setOvrSetting16x2(OvrSettingOffset::SoftCurrentLimitForward, current, current);
   }
 
   /// Returns 0 if the last communication with the device was successful, and
@@ -1240,12 +1383,12 @@ private:
     MaxDecelerationReverse              = 0x16, // uint16_t
     MaxDutyCycleForward                 = 0x18, // uint16_t
     MaxDutyCycleReverse                 = 0x1a, // uint16_t
-    CurrentLimitCodeForward             = 0x1c, // uint16_t
-    CurrentLimitCodeReverse             = 0x1e, // uint16_t
+    EncodedHardCurrentLimitForward      = 0x1c, // uint16_t
+    EncodedHardCurrentLimitReverse      = 0x1e, // uint16_t
     BrakeDurationForward                = 0x20, // uint8_t
     BrakeDurationReverse                = 0x21, // uint8_t
-    MaxCurrentForward                   = 0x22, // uint16_t
-    MaxCurrentReverse                   = 0x24, // uint16_t
+    SoftCurrentLimitForward             = 0x22, // uint16_t
+    SoftCurrentLimitReverse             = 0x24, // uint16_t
   };
 
   uint8_t getVar8SingleByte(uint8_t offset)
