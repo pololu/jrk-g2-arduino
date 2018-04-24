@@ -8,7 +8,7 @@ Release date: 2018-04-24<br>
 ## Summary
 
 This is a library for the Arduino IDE that helps interface with a
-[Jrk G2 USB Motor Controller With Feedback][jrk]
+[Jrk G2 USB Motor Controller with Feedback][jrk]
 using serial or I&sup2;C.
 
 ## Supported platforms
