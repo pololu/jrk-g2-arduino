@@ -1,0 +1,158 @@
+JrkG2InputNull	KEYWORD2
+JrkG2CommReadError	KEYWORD2
+
+JrkG2Error	KEYWORD1
+AwaitingCommand	KEYWORD2
+NoPower	KEYWORD2
+MotorDriver	KEYWORD2
+InputInvalid	KEYWORD2
+InputDisconnect	KEYWORD2
+FeedbackDisconnect	KEYWORD2
+SoftOvercurrent	KEYWORD2
+SerialSignal	KEYWORD2
+SerialOverrun	KEYWORD2
+SerialBufferFull	KEYWORD2
+SerialCrc	KEYWORD2
+SerialProtocol	KEYWORD2
+SerialTimeout	KEYWORD2
+HardOvercurrent	KEYWORD2
+
+JrkG2Command	KEYWORD1
+SetTarget	KEYWORD2
+SetTargetLowResRev	KEYWORD2
+SetTargetLowResFwd	KEYWORD2
+ForceDutyCycleTarget	KEYWORD2
+ForceDutyCycle	KEYWORD2
+MotorOff	KEYWORD2
+GetVariable8	KEYWORD2
+GetVariable16	KEYWORD2
+GetEEPROMSettings	KEYWORD2
+GetVariables	KEYWORD2
+SetRAMSettings	KEYWORD2
+GetRAMSettings	KEYWORD2
+GetCurrentChoppingOccurrenceCount	KEYWORD2
+
+JrkG2ForceMode	KEYWORD1
+None	KEYWORD2
+DutyCycleTarget	KEYWORD2
+DutyCycle	KEYWORD2
+
+JrkG2Reset	KEYWORD1
+PowerUp	KEYWORD2
+Brownout	KEYWORD2
+ResetLine	KEYWORD2
+Watchdog	KEYWORD2
+Software	KEYWORD2
+StackOverflow	KEYWORD2
+StackUnderflow	KEYWORD2
+
+JrkG2Pin	KEYWORD1
+SCL	KEYWORD2
+SDA	KEYWORD2
+TX	KEYWORD2
+RX	KEYWORD2
+RC	KEYWORD2
+AUX	KEYWORD2
+FBA	KEYWORD2
+FBT	KEYWORD2
+
+JrkG2OptionsByte3	KEYWORD1
+ResetIntegral	KEYWORD2
+CoastWhenOff	KEYWORD2
+
+JrkG2Base	KEYWORD1
+setTarget	KEYWORD2
+setTargetLowResRev	KEYWORD2
+setTargetLowResFwd	KEYWORD2
+forceDutyCycleTarget	KEYWORD2
+forceDutyCycle	KEYWORD2
+stopMotor	KEYWORD2
+getTarget	KEYWORD2
+getScaledFeedback	KEYWORD2
+getIntegral	KEYWORD2
+getDutyCycleTarget	KEYWORD2
+getDutyCycle	KEYWORD2
+getCurrentLowRes	KEYWORD2
+getPIDPeriodExceeded	KEYWORD2
+getPIDPeriodCount	KEYWORD2
+getErrorFlagsHalting	KEYWORD2
+getErrorFlagsOccurred	KEYWORD2
+getForceMode	KEYWORD2
+getVinVoltage	KEYWORD2
+getCurrent	KEYWORD2
+getDeviceReset	KEYWORD2
+getUpTime	KEYWORD2
+getRCPulseWidth	KEYWORD2
+getFBTReading	KEYWORD2
+getAnalogReading	KEYWORD2
+getRawCurrent	KEYWORD2
+getEncodedHardCurrentLimit	KEYWORD2
+getLastDutyCycle	KEYWORD2
+getCurrentChoppingConsecutiveCount	KEYWORD2
+getCurrentChoppingOccurrenceCount	KEYWORD2
+getEEPROMSettings	KEYWORD2
+getRAMSettings	KEYWORD2
+setRAMSettings	KEYWORD2
+setResetIntegral	KEYWORD2
+getResetIntegral	KEYWORD2
+setCoastWhenOff	KEYWORD2
+getCoastWhenOff	KEYWORD2
+setProportionalCoefficient	KEYWORD2
+getProportionalMultiplier	KEYWORD2
+getProportionalExponent	KEYWORD2
+setIntegralCoefficient	KEYWORD2
+getIntegralMultiplier	KEYWORD2
+getIntegralExponent	KEYWORD2
+setDerivativeCoefficient	KEYWORD2
+getDerivativeMultiplier	KEYWORD2
+getDerivativeExponent	KEYWORD2
+setPIDPeriod	KEYWORD2
+getPIDPeriod	KEYWORD2
+setIntegralLimit	KEYWORD2
+getIntegralLimit	KEYWORD2
+setMaxDutyCycleWhileFeedbackOutOfRange	KEYWORD2
+getMaxDutyCycleWhileFeedbackOutOfRange	KEYWORD2
+
+setMaxAccelerationForward	KEYWORD2
+getMaxAccelerationForward	KEYWORD2
+setMaxAccelerationReverse	KEYWORD2
+getMaxAccelerationReverse	KEYWORD2
+setMaxAcceleration	KEYWORD2
+
+setMaxDecelerationForward	KEYWORD2
+getMaxDecelerationForward	KEYWORD2
+setMaxDecelerationReverse	KEYWORD2
+getMaxDecelerationReverse	KEYWORD2
+setMaxDeceleration	KEYWORD2
+
+setMaxDutyCycleForward	KEYWORD2
+getMaxDutyCycleForward	KEYWORD2
+setMaxDutyCycleReverse	KEYWORD2
+getMaxDutyCycleReverse	KEYWORD2
+setMaxDutyCycle	KEYWORD2
+
+setEncodedHardCurrentLimitForward	KEYWORD2
+getEncodedHardCurrentLimitForward	KEYWORD2
+setEncodedHardCurrentLimitReverse	KEYWORD2
+getEncodedHardCurrentLimitReverse	KEYWORD2
+setEncodedHardCurrentLimit	KEYWORD2
+
+setBrakeDurationForward	KEYWORD2
+getBrakeDurationForward	KEYWORD2
+setBrakeDurationReverse	KEYWORD2
+getBrakeDurationReverse	KEYWORD2
+setBrakeDuration	KEYWORD2
+
+setSoftCurrentLimitForward	KEYWORD2
+getSoftCurrentLimitForward	KEYWORD2
+setSoftCurrentLimitReverse	KEYWORD2
+getSoftCurrentLimitReverse	KEYWORD2
+setSoftCurrentLimit	KEYWORD2
+
+getLastError	KEYWORD2
+
+JrkG2Serial	KEYWORD1
+getDeviceNumber	KEYWORD2
+
+JrkG2I2C	KEYWORD1
+getAddress	KEYWORD2
