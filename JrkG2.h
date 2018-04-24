@@ -1553,17 +1553,55 @@ private:
     return ((uint16_t)buffer[0] << 0) | ((uint16_t)buffer[1] << 8);
   }
 
-  virtual void commandQuick(JrkG2Command cmd) = 0;
+  // Convenience functions that take care of casting a JrkG2Command to a uint8_t.
+
+  void commandQuick(JrkG2Command cmd)
+  {
+    commandQuick((uint8_t)cmd);
+  }
+
+  void commandW7(JrkG2Command cmd, uint8_t val)
+  {
+    commandW7((uint8_t)cmd, val);
+  }
+
+  void commandWs14(JrkG2Command cmd, int16_t val)
+  {
+    commandWs14((uint8_t)cmd, val);
+  }
+
+  uint8_t commandR8(JrkG2Command cmd)
+  {
+    return commandR8((uint8_t)cmd);
+  }
+
+  uint16_t commandR16(JrkG2Command cmd)
+  {
+    return commandR16((uint8_t)cmd);
+  }
+
+  void segmentRead(JrkG2Command cmd, uint8_t offset,
+    uint8_t length, uint8_t * buffer)
+  {
+    segmentRead((uint8_t)cmd, offset, length, buffer);
+  }
+
+  void segmentWrite(JrkG2Command cmd, uint8_t offset,
+    uint8_t length, uint8_t * buffer)
+  {
+    segmentWrite((uint8_t)cmd, offset, length, buffer);
+  }
+
+  // Low-level functions implemented by the serial/I2C subclasses.
+
+  virtual void commandQuick(uint8_t cmd) = 0;
   virtual void commandW7(uint8_t cmd, uint8_t val) = 0;
-  void commandW7(JrkG2Command cmd, uint8_t val) { commandW7((uint8_t)cmd, val); }
-  virtual void commandWs14(JrkG2Command cmd, int16_t val) = 0;
+  virtual void commandWs14(uint8_t cmd, int16_t val) = 0;
   virtual uint8_t commandR8(uint8_t cmd) = 0;
-  uint8_t commandR8(JrkG2Command cmd) { return commandR8((uint8_t)cmd); }
   virtual uint16_t commandR16(uint8_t cmd) = 0;
-  uint16_t commandR16(JrkG2Command cmd) { return commandR16((uint8_t)cmd); }
-  virtual void segmentRead(JrkG2Command cmd, uint8_t offset,
+  virtual void segmentRead(uint8_t cmd, uint8_t offset,
     uint8_t length, uint8_t * buffer) = 0;
-  virtual void segmentWrite(JrkG2Command cmd, uint8_t offset,
+  virtual void segmentWrite(uint8_t cmd, uint8_t offset,
     uint8_t length, uint8_t * buffer) = 0;
 };
 
@@ -1615,18 +1653,17 @@ private:
   Stream * const _stream;
   const uint8_t _deviceNumber;
 
-  void commandQuick(JrkG2Command cmd) { sendCommandHeader(cmd); }
+  void commandQuick(uint8_t cmd) { sendCommandHeader(cmd); }
   void commandW7(uint8_t cmd, uint8_t val);
-  void commandWs14(JrkG2Command cmd, int16_t val);
+  void commandWs14(uint8_t cmd, int16_t val);
   uint8_t commandR8(uint8_t cmd);
   uint16_t commandR16(uint8_t cmd);
-  void segmentRead(JrkG2Command cmd, uint8_t offset,
+  void segmentRead(uint8_t cmd, uint8_t offset,
     uint8_t length, uint8_t * buffer);
-  void segmentWrite(JrkG2Command cmd, uint8_t offset,
+  void segmentWrite(uint8_t cmd, uint8_t offset,
     uint8_t length, uint8_t * buffer);
 
   void sendCommandHeader(uint8_t cmd);
-  void sendCommandHeader(JrkG2Command cmd) { sendCommandHeader((uint8_t)cmd); }
   void serialW7(uint8_t val) { _stream->write(val & 0x7F); }
 };
 
@@ -1657,13 +1694,13 @@ public:
 private:
   const uint8_t _address;
 
-  void commandQuick(JrkG2Command cmd);
+  void commandQuick(uint8_t cmd);
   void commandW7(uint8_t cmd, uint8_t val);
-  void commandWs14(JrkG2Command cmd, int16_t val);
+  void commandWs14(uint8_t cmd, int16_t val);
   uint8_t commandR8(uint8_t cmd);
   uint16_t commandR16(uint8_t cmd);
-  void segmentRead(JrkG2Command cmd, uint8_t offset,
+  void segmentRead(uint8_t cmd, uint8_t offset,
     uint8_t length, uint8_t * buffer);
-  void segmentWrite(JrkG2Command cmd, uint8_t offset,
+  void segmentWrite(uint8_t cmd, uint8_t offset,
     uint8_t length, uint8_t * buffer) ;
 };

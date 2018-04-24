@@ -11,7 +11,7 @@ void JrkG2Serial::commandW7(uint8_t cmd, uint8_t val)
   _lastError = 0;
 }
 
-void JrkG2Serial::commandWs14(JrkG2Command cmd, int16_t val)
+void JrkG2Serial::commandWs14(uint8_t cmd, int16_t val)
 {
   uint16_t v = val;
   sendCommandHeader(cmd);
@@ -55,7 +55,7 @@ uint16_t JrkG2Serial::commandR16(uint8_t cmd)
   return ((uint16_t)buffer[0] << 0) | ((uint16_t)buffer[1] << 8);
 }
 
-void JrkG2Serial::segmentRead(JrkG2Command cmd, uint8_t offset,
+void JrkG2Serial::segmentRead(uint8_t cmd, uint8_t offset,
   uint8_t length, uint8_t * buffer)
 {
   // The Jrk does not allow reads longer than 15 bytes.
@@ -79,7 +79,7 @@ void JrkG2Serial::segmentRead(JrkG2Command cmd, uint8_t offset,
   _lastError = 0;
 }
 
-void JrkG2Serial::segmentWrite(JrkG2Command cmd, uint8_t offset,
+void JrkG2Serial::segmentWrite(uint8_t cmd, uint8_t offset,
   uint8_t length, uint8_t * buffer)
 {
   // The Jrk does not accept writes longer than 7 bytes over serial.
@@ -120,26 +120,26 @@ void JrkG2Serial::sendCommandHeader(uint8_t cmd)
 
 /**** JrkG2I2C ****/
 
-void JrkG2I2C::commandQuick(JrkG2Command cmd)
+void JrkG2I2C::commandQuick(uint8_t cmd)
 {
   Wire.beginTransmission(_address);
-  Wire.write((uint8_t)cmd);
+  Wire.write(cmd);
   _lastError = Wire.endTransmission();
 }
 
 void JrkG2I2C::commandW7(uint8_t cmd, uint8_t val)
 {
   Wire.beginTransmission(_address);
-  Wire.write((uint8_t)cmd);
+  Wire.write(cmd);
   Wire.write(val & 0x7F);
   _lastError = Wire.endTransmission();
 }
 
-void JrkG2I2C::commandWs14(JrkG2Command cmd, int16_t val)
+void JrkG2I2C::commandWs14(uint8_t cmd, int16_t val)
 {
   uint16_t v = val;
   Wire.beginTransmission(_address);
-  Wire.write((uint8_t)cmd);
+  Wire.write(cmd);
   Wire.write(v & 0xFF);
   Wire.write(v >> 8 & 0xFF);
   _lastError = Wire.endTransmission();
@@ -148,7 +148,7 @@ void JrkG2I2C::commandWs14(JrkG2Command cmd, int16_t val)
 uint8_t JrkG2I2C::commandR8(uint8_t cmd)
 {
   Wire.beginTransmission(_address);
-  Wire.write((uint8_t)cmd);
+  Wire.write(cmd);
   _lastError = Wire.endTransmission(false);  // no stop (repeated start)
   if (_lastError) { return 0; }
 
@@ -167,7 +167,7 @@ uint8_t JrkG2I2C::commandR8(uint8_t cmd)
 uint16_t JrkG2I2C::commandR16(uint8_t cmd)
 {
   Wire.beginTransmission(_address);
-  Wire.write((uint8_t)cmd);
+  Wire.write(cmd);
   _lastError = Wire.endTransmission(false);  // no stop (repeated start)
   if (_lastError) { return 0; }
 
@@ -184,14 +184,14 @@ uint16_t JrkG2I2C::commandR16(uint8_t cmd)
   return (uint16_t)valL | ((uint16_t)valH << 8);
 }
 
-void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
+void JrkG2I2C::segmentRead(uint8_t cmd, uint8_t offset,
   uint8_t length, uint8_t * buffer)
 {
   // The Jrk does not allow reads longer than 15 bytes.
   if (length > 15) { length = 15; }
 
   Wire.beginTransmission(_address);
-  Wire.write((uint8_t)cmd);
+  Wire.write(cmd);
   Wire.write(offset);
   _lastError = Wire.endTransmission(false);  // no stop (repeated start)
   if (_lastError)
@@ -217,7 +217,7 @@ void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
   }
 }
 
-void JrkG2I2C::segmentWrite(JrkG2Command cmd, uint8_t offset,
+void JrkG2I2C::segmentWrite(uint8_t cmd, uint8_t offset,
   uint8_t length, uint8_t * buffer)
 {
   // The Jrk does not accept writes longer than 13 bytes over I2C.
