@@ -111,7 +111,7 @@ The main classes provided by the library are listed below:
 
 ## Documentation
 
-For complete documentation of this library, see [the jrk-g2--arduino documentation][doc].  If you are already on that page, then click the links in the "Classes" section above.
+For complete documentation of this library, see [the jrk-g2-arduino documentation][doc].  If you are already on that page, then click the links in the "Classes" section above.
 
 [a-star]: https://www.pololu.com/a-star
 [doc]: https://pololu.github.io/jrk-g2-arduino/
