@@ -13,9 +13,10 @@ void JrkG2Serial::commandW7(uint8_t cmd, uint8_t val)
 
 void JrkG2Serial::commandWs14(JrkG2Command cmd, int16_t val)
 {
+  uint16_t v = val;
   sendCommandHeader(cmd);
-  serialW7(val); // lower 7 bits
-  serialW7(val >> 7); // upper 7 bits
+  serialW7(v);  // lower 7 bits
+  serialW7(v >> 7);  // upper 7 bits
 
   _lastError = 0;
 }
@@ -88,11 +89,12 @@ void JrkG2Serial::segmentWrite(JrkG2Command cmd, uint8_t offset,
   serialW7(offset);
   serialW7(length);
 
-  uint8_t msbs = 0; // most-significant bits
+  // bit i = most-significant bit of buffer[i]
+  uint8_t msbs = 0;
   for (uint8_t i = 0; i < length; i++)
   {
-    serialW7(buffer[i]); // first byte of buffer with MSB cleared
-    msbs |= (buffer[i] >> 7 & 1) << i; // bit i = MSB of buffer[i]
+    serialW7(buffer[i]);
+    msbs |= (buffer[i] >> 7 & 1) << i;
   }
   serialW7(msbs);
 
@@ -135,13 +137,11 @@ void JrkG2I2C::commandW7(uint8_t cmd, uint8_t val)
 
 void JrkG2I2C::commandWs14(JrkG2Command cmd, int16_t val)
 {
-  uint8_t upper = (val >> 8) & 0x3F; // truncate upper byte to 6 bits
-  if (val < 0) { upper |= 0xC0; } // sign-extend
-
+  uint16_t v = val;
   Wire.beginTransmission(_address);
   Wire.write((uint8_t)cmd);
-  Wire.write(val); // lower 8 bits
-  Wire.write(upper); // upper 6 bits, sign-extended
+  Wire.write(v & 0xFF);
+  Wire.write(v >> 8 & 0xFF);
   _lastError = Wire.endTransmission();
 }
 
@@ -220,7 +220,7 @@ void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
 void JrkG2I2C::segmentWrite(JrkG2Command cmd, uint8_t offset,
   uint8_t length, uint8_t * buffer)
 {
-  // The Jrk does not accept write longer than 13 bytes over I2C.
+  // The Jrk does not accept writes longer than 13 bytes over I2C.
   if (length > 13) { length = 13; }
 
   Wire.beginTransmission(_address);
