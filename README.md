@@ -121,4 +121,4 @@ For complete documentation of this library, see [the jrk-g2--arduino documentati
 
 ## Version history
 
-* 1.0.0 (2017-04-24): Original release.
+* 1.0.0 (2018-04-24): Original release.
