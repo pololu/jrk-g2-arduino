@@ -1598,8 +1598,8 @@ public:
   /// ```
   /// #include <SoftwareSerial.h>
   /// SoftwareSerial jrkG2Serial(10, 11);
-  /// JrkG2Serial jrk1(jrkG2Serial, 14);
-  /// JrkG2Serial jrk2(jrkG2Serial, 15);
+  /// JrkG2Serial jrk1(jrkG2Serial, 11);
+  /// JrkG2Serial jrk2(jrkG2Serial, 12);
   /// ```
   JrkG2Serial(Stream & stream, uint8_t deviceNumber = 255) :
     _stream(&stream),
@@ -1607,7 +1607,7 @@ public:
   {
   }
 
-  /// Gets the serial device number specified in the constructor.
+  /// Gets the serial device number this object is using.
   uint8_t getDeviceNumber() { return _deviceNumber; }
 
 private:
@@ -1640,13 +1640,17 @@ public:
   ///
   /// The `address` parameter specifies the 7-bit I2C address to use, and it
   /// must match the Jrk's "Device number" setting.  It defaults to 11.
-  JrkG2I2C(uint8_t address = 11) : _address(address)
+  ///
+  /// This constructor only uses the least-significat 7 bits of the address,
+  /// since I2C addresses can only go up to 127 and we want things to always
+  /// just work as long as the address is the same as the "Device number".
+  JrkG2I2C(uint8_t address = 11) : _address(address & 0x7F)
   {
   }
 
   // TODO: support Wire1 on Arduino Due, and bit-banging I2C on any board?
 
-  /// Gets the I2C address specified in the constructor.
+  /// Gets the I2C address this object is using.
   uint8_t getAddress() { return _address; }
 
 private:
