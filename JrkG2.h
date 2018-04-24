@@ -710,7 +710,8 @@ public:
 
   /// Sets a contiguous block of settings in the Jrk G2's RAM.
   ///
-  /// The maximum length that can be fetched is 15 bytes.
+  /// The maximum length that can be written in a single command
+  /// is 7 bytes over Serial, 13 bytes over I2C.
   ///
   /// Example usage:
   /// ```
