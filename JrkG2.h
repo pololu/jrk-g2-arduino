@@ -733,6 +733,29 @@ public:
     segmentWrite(JrkG2Command::SetRAMSettings, offset, length, buffer);
   }
 
+  /// Gets a contiguous block of variables from the Jrk G2.
+  ///
+  /// Note that this library has convenient functions for reading every variable
+  /// provided by the Jrk.  The main reason to use this function is if you want
+  /// to read multiple variables at once for extra efficiency or to ensure that
+  /// the variables are in a consistent state.
+  ///
+  /// The maximum length that can be fetched is 15 bytes.
+  ///
+  /// Example usage:
+  /// ```
+  /// // Get the Jrk's last device reset and its up time.
+  /// uint8_t buffer[5];
+  /// jrk.getVariables(0x1F, 5, buffer);
+  /// ```
+  ///
+  /// For information on how the variables are encoded,
+  /// see the Jrk G2 user's guide.
+  void getVariables(uint8_t offset, uint8_t length, uint8_t * buffer)
+  {
+    segmentRead(JrkG2Command::GetVariables, offset, length, buffer);
+  }
+
   /// Sets or clears the "Reset integral" setting in the Jrk's RAM settings.
   ///
   /// If this setting is set to true, the PID algorithm will reset the integral

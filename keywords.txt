@@ -93,6 +93,7 @@ getCurrentChoppingOccurrenceCount	KEYWORD2
 getEEPROMSettings	KEYWORD2
 getRAMSettings	KEYWORD2
 setRAMSettings	KEYWORD2
+getVariables                            KEYWORD2
 setResetIntegral	KEYWORD2
 getResetIntegral	KEYWORD2
 setCoastWhenOff	KEYWORD2
