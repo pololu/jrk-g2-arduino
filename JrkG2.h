@@ -144,7 +144,7 @@ public:
     // lower 5 bits in command byte
     // upper 7 bits in data byte
     if (target > 4095) { target = 4095; }
-    commandW7(JrkG2Command::SetTarget | (target & 0x1F), target >> 5);
+    commandW7((uint8_t)JrkG2Command::SetTarget | (target & 0x1F), target >> 5);
   }
 
   /// Sets the target of the Jrk based on a value in the range 0 to 127.
