@@ -57,10 +57,10 @@ enum class JrkG2Command
   MotorOff                          = 0xFF,
   GetVariable8                      = 0x80,
   GetVariable16                     = 0xA0,
-  GetEepromSettings                 = 0xE3,
+  GetEEPROMSettings                 = 0xE3,
   GetVariables                      = 0xE5,
-  SetRamSettings                    = 0xE6,
-  GetRamSettings                    = 0xEA,
+  SetRAMSettings                    = 0xE6,
+  GetRAMSettings                    = 0xEA,
   GetCurrentChoppingOccurrenceCount = 0xEC,
 };
 
@@ -678,20 +678,61 @@ public:
   /// ```
   /// // Get the Jrk's serial device number.
   /// uint8_t deviceNumber;
-  /// jrk.getEepromSetting(0x28, 1, &deviceNumber);
+  /// jrk.getEEPROMSettings(0x28, 1, &deviceNumber);
   /// ```
   ///
-  /// For most settings, this library does not attempt to interpret the settings
-  /// and say what they mean.  For information on how the settings are encoded
-  /// in the Jrk's EEPROM, see the Jrk G2 user's guide.
-  void getEepromSetting(uint8_t offset, uint8_t length, uint8_t * buffer)
+  /// For information on how the settings are encoded,
+  /// see the Jrk G2 user's guide.
+  void getEEPROMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
   {
-    segmentRead(JrkG2Command::GetEepromSettings, offset, length, buffer);
+    segmentRead(JrkG2Command::GetEEPROMSettings, offset, length, buffer);
   }
-  // TODO: rename to getEepromSettings plural, make offset be an enum class
 
-  // TODO: getRAMSettings
-  // TODO: setRAMSettings
+  /// Gets a contiguous block of settings from the Jrk G2's RAM.
+  ///
+  /// The maximum length that can be fetched is 15 bytes.
+  ///
+  /// Example usage:
+  /// ```
+  /// // Get the Jrk's feedback maximum setting.
+  /// uint8_t buffer[2];
+  /// jrk.getRAMSettings(0x1F, 2, buffer);
+  /// uint16_t feedbackMaximum = buffer[0] + (buffer[1] << 8);
+  /// ```
+  ///
+  /// Note that this library has several functions for reading and writing
+  /// specific RAM settings, and they are easier to use than this function.
+  ///
+  /// For information on how the settings are encoded,
+  /// see the Jrk G2 user's guide.
+  void getRAMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
+  {
+    segmentRead(JrkG2Command::GetRAMSettings, offset, length, buffer);
+  }
+
+  /// Sets a contiguous block of settings in the Jrk G2's RAM.
+  ///
+  /// The maximum length that can be fetched is 15 bytes.
+  ///
+  /// Example usage:
+  /// ```
+  /// // Set the Jrk's feedback maximum setting.
+  /// uint16_t feedbackMaximum = 1234;
+  /// uint8_t buffer[2];
+  /// buffer[0] = feedbackMaximum & 0xFF;
+  /// buffer[1] = feedbackMaximum >> 8 & 0xFF;
+  /// jrk.setRAMSettings(0x1F, 2, buffer);
+  /// ```
+  ///
+  /// Note that this library has several functions for reading and writing
+  /// specific RAM settings, and they are easier to use than this function.
+  ///
+  /// For information on how the settings are encoded,
+  /// see the Jrk G2 user's guide.
+  void setRAMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
+  {
+    segmentWrite(JrkG2Command::SetRAMSettings, offset, length, buffer);
+  }
 
   /// Sets or clears the "Reset integral" setting in the Jrk's RAM settings.
   ///
@@ -1468,26 +1509,26 @@ private:
 
   void setOvrSetting8(uint8_t offset, uint8_t val)
   {
-    segmentWrite(JrkG2Command::SetRamSettings, offset, 1, &val);
+    segmentWrite(JrkG2Command::SetRAMSettings, offset, 1, &val);
   }
 
   void setOvrSetting16(uint8_t offset, uint16_t val)
   {
     uint8_t buffer[2] = {(uint8_t)val, (uint8_t)(val >> 8)};
-    segmentWrite(JrkG2Command::SetRamSettings, offset, 2, buffer);
+    segmentWrite(JrkG2Command::SetRAMSettings, offset, 2, buffer);
   }
 
   void setOvrSetting8x2(uint8_t offset, uint8_t val1, uint8_t val2)
   {
     uint8_t buffer[2] = {val1, val2};
-    segmentWrite(JrkG2Command::SetRamSettings, offset, 2, buffer);
+    segmentWrite(JrkG2Command::SetRAMSettings, offset, 2, buffer);
   }
 
   void setOvrSetting16x2(uint8_t offset, uint16_t val1, uint16_t val2)
   {
     uint8_t buffer[4] = {(uint8_t)val1, (uint8_t)(val1 >> 8),
                          (uint8_t)val2, (uint8_t)(val2 >> 8)};
-    segmentWrite(JrkG2Command::SetRamSettings, offset, 4, buffer);
+    segmentWrite(JrkG2Command::SetRAMSettings, offset, 4, buffer);
   }
 
   // set multiplier and exponent together in one segment write
@@ -1495,20 +1536,20 @@ private:
   void setPIDCoefficient(uint8_t offset, uint16_t multiplier, uint8_t exponent)
   {
     uint8_t buffer[3] = {(uint8_t)multiplier, (uint8_t)(multiplier >> 8), exponent};
-    segmentWrite(JrkG2Command::SetRamSettings, offset, 3, buffer);
+    segmentWrite(JrkG2Command::SetRAMSettings, offset, 3, buffer);
   }
 
   uint8_t getOvrSetting8(uint8_t offset)
   {
     uint8_t result;
-    segmentRead(JrkG2Command::GetRamSettings, offset, 1, &result);
+    segmentRead(JrkG2Command::GetRAMSettings, offset, 1, &result);
     return result;
   }
 
   uint16_t getOvrSetting16(uint8_t offset)
   {
     uint8_t buffer[2];
-    segmentRead(JrkG2Command::GetRamSettings, offset, 2, buffer);
+    segmentRead(JrkG2Command::GetRAMSettings, offset, 2, buffer);
     return ((uint16_t)buffer[0] << 0) | ((uint16_t)buffer[1] << 8);
   }
 
