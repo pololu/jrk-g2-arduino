@@ -711,7 +711,7 @@ public:
   /// See also getResetIntegral().
   void setResetIntegral(bool reset)
   {
-    uint8_t tmp = getOvrSetting8(OvrSettingOffset::OptionsByte3);
+    uint8_t tmp = getOvrSetting8(SettingOffset::OptionsByte3);
     if (getLastError()) { return; }
     if (reset)
     {
@@ -721,7 +721,7 @@ public:
     {
       tmp &= ~(1 << (uint8_t)JrkG2OptionsByte3::ResetIntegral);
     }
-    setOvrSetting8(OvrSettingOffset::OptionsByte3, tmp);
+    setOvrSetting8(SettingOffset::OptionsByte3, tmp);
   }
 
   /// Gets the "Reset integral" setting from the Jrk's RAM settings.
@@ -729,7 +729,7 @@ public:
   /// See also setResetIntegral().
   bool getResetIntegral()
   {
-    return getOvrSetting8(OvrSettingOffset::OptionsByte3) >>
+    return getOvrSetting8(SettingOffset::OptionsByte3) >>
       (uint8_t)JrkG2OptionsByte3::ResetIntegral & 1;
   }
 
@@ -747,7 +747,7 @@ public:
   /// See also getCoastWhenOff().
   void setCoastWhenOff(bool coast)
   {
-    uint8_t tmp = getOvrSetting8(OvrSettingOffset::OptionsByte3);
+    uint8_t tmp = getOvrSetting8(SettingOffset::OptionsByte3);
     if (getLastError()) { return; }
     if (coast)
     {
@@ -757,7 +757,7 @@ public:
     {
       tmp &= ~(1 << (uint8_t)JrkG2OptionsByte3::CoastWhenOff);
     }
-    setOvrSetting8(OvrSettingOffset::OptionsByte3, tmp);
+    setOvrSetting8(SettingOffset::OptionsByte3, tmp);
   }
 
   /// Gets the "Coast when off" setting from the Jrk's RAM settings.
@@ -765,7 +765,7 @@ public:
   /// See also setCoastWhenOff().
   bool getCoastWhenOff()
   {
-    return getOvrSetting8(OvrSettingOffset::OptionsByte3) >> (uint8_t)JrkG2OptionsByte3::CoastWhenOff & 1;
+    return getOvrSetting8(SettingOffset::OptionsByte3) >> (uint8_t)JrkG2OptionsByte3::CoastWhenOff & 1;
   }
 
   /// Sets the proportional coefficient in the Jrk's RAM settings.
@@ -792,7 +792,7 @@ public:
   /// well as setIntegralCoefficient() and setDerivativeCoefficient().
   void setProportionalCoefficient(uint16_t multiplier, uint8_t exponent)
   {
-    setPIDCoefficient(OvrSettingOffset::ProportionalMultiplier, multiplier, exponent);
+    setPIDCoefficient(SettingOffset::ProportionalMultiplier, multiplier, exponent);
   }
 
   /// Gets the multiplier part of the proportional coefficient from the Jrk's
@@ -801,7 +801,7 @@ public:
   /// See also getProportionalExponent() and setProportionalCoefficient().
   uint16_t getProportionalMultiplier()
   {
-    return getOvrSetting16(OvrSettingOffset::ProportionalMultiplier);
+    return getOvrSetting16(SettingOffset::ProportionalMultiplier);
   }
 
   /// Gets the exponent part of the proportional coefficient from the Jrk's RAM
@@ -810,7 +810,7 @@ public:
   /// See also getProportionalMultiplier() and setProportionalCoefficient().
   uint8_t getProportionalExponent()
   {
-    return getOvrSetting8(OvrSettingOffset::ProportionalExponent);
+    return getOvrSetting8(SettingOffset::ProportionalExponent);
   }
 
   /// Sets the integral coefficient in the Jrk's RAM settings.
@@ -831,7 +831,7 @@ public:
   /// well as setProportionalCoefficient() and setDerivativeCoefficient().
   void setIntegralCoefficient(uint16_t multiplier, uint8_t exponent)
   {
-    setPIDCoefficient(OvrSettingOffset::IntegralMultiplier, multiplier, exponent);
+    setPIDCoefficient(SettingOffset::IntegralMultiplier, multiplier, exponent);
   }
 
   /// Gets the multiplier part of the integral coefficient from the Jrk's
@@ -840,7 +840,7 @@ public:
   /// See also getIntegralExponent() and setIntegralCoefficient().
   uint16_t getIntegralMultiplier()
   {
-    return getOvrSetting16(OvrSettingOffset::IntegralMultiplier);
+    return getOvrSetting16(SettingOffset::IntegralMultiplier);
   }
 
   /// Gets the exponent part of the integral coefficient from the Jrk's
@@ -849,7 +849,7 @@ public:
   /// See also getIntegralMultiplier() and setIntegralCoefficient().
   uint8_t getIntegralExponent()
   {
-    return getOvrSetting8(OvrSettingOffset::IntegralExponent);
+    return getOvrSetting8(SettingOffset::IntegralExponent);
   }
 
   /// Sets the derivative coefficient in the Jrk's RAM settings.
@@ -870,7 +870,7 @@ public:
   /// well as setProportionalCoefficient() and setIntegralCoefficient().
   void setDerivativeCoefficient(uint16_t multiplier, uint8_t exponent)
   {
-    setPIDCoefficient(OvrSettingOffset::DerivativeMultiplier, multiplier, exponent);
+    setPIDCoefficient(SettingOffset::DerivativeMultiplier, multiplier, exponent);
   }
 
   /// Gets the multiplier part of the derivative coefficient from the
@@ -879,7 +879,7 @@ public:
   /// See also getDerivativeExponent() and setDerivativeCoefficient().
   uint16_t getDerivativeMultiplier()
   {
-    return getOvrSetting16(OvrSettingOffset::DerivativeMultiplier);
+    return getOvrSetting16(SettingOffset::DerivativeMultiplier);
   }
 
   /// Gets the exponent part of the derivative coefficient from the
@@ -888,7 +888,7 @@ public:
   /// See also getDerivativeMultiplier() and setDerivativeCoefficient().
   uint8_t getDerivativeExponent()
   {
-    return getOvrSetting8(OvrSettingOffset::DerivativeExponent);
+    return getOvrSetting8(SettingOffset::DerivativeExponent);
   }
 
   /// Sets the PID period in the Jrk's RAM settings.
@@ -905,7 +905,7 @@ public:
   /// See also getPIDPeriod().
   void setPIDPeriod(uint16_t period)
   {
-    setOvrSetting16(OvrSettingOffset::PIDPeriod, period);
+    setOvrSetting16(SettingOffset::PIDPeriod, period);
   }
 
   /// Gets the PID period from the Jrk's RAM settings, in milliseconds.
@@ -913,7 +913,7 @@ public:
   /// See also setPIDPeriod().
   uint16_t getPIDPeriod()
   {
-    return getOvrSetting16(OvrSettingOffset::PIDPeriod);
+    return getOvrSetting16(SettingOffset::PIDPeriod);
   }
 
   /// Sets the integral limit in the Jrk's RAM settings.
@@ -929,7 +929,7 @@ public:
   /// See also getIntegralLimit().
   void setIntegralLimit(uint16_t limit)
   {
-    setOvrSetting16(OvrSettingOffset::IntegralLimit, limit);
+    setOvrSetting16(SettingOffset::IntegralLimit, limit);
   }
 
   /// Gets the integral limit from the Jrk's RAM settings.
@@ -937,7 +937,7 @@ public:
   /// See also setIntegralLimit().
   uint16_t getIntegralLimit()
   {
-    return getOvrSetting16(OvrSettingOffset::IntegralLimit);
+    return getOvrSetting16(SettingOffset::IntegralLimit);
   }
 
   /// Sets the maximum duty cycle while feedback is out of range in the Jrk's
@@ -950,7 +950,7 @@ public:
   /// See also getMaxDutyCycleWhileFeedbackOutOfRange().
   void setMaxDutyCycleWhileFeedbackOutOfRange(uint16_t duty)
   {
-    setOvrSetting16(OvrSettingOffset::MaxDutyCycleWhileFeedbackOutOfRange, duty);
+    setOvrSetting16(SettingOffset::MaxDutyCycleWhileFeedbackOutOfRange, duty);
   }
 
   /// Gets the maximum duty cycle while feedback is out of range from the Jrk's RAM
@@ -959,7 +959,7 @@ public:
   /// See also setMaxDutyCycleWhileFeedbackOutOfRange().
   uint16_t getMaxDutyCycleWhileFeedbackOutOfRange()
   {
-    return getOvrSetting16(OvrSettingOffset::MaxDutyCycleWhileFeedbackOutOfRange);
+    return getOvrSetting16(SettingOffset::MaxDutyCycleWhileFeedbackOutOfRange);
   }
 
   /// Sets the maximum acceleration in the forward direction in the
@@ -973,7 +973,7 @@ public:
   /// setMaxAcceleration(), and setMaxDecelerationForward().
   void setMaxAccelerationForward(uint16_t accel)
   {
-    setOvrSetting16(OvrSettingOffset::MaxAccelerationForward, accel);
+    setOvrSetting16(SettingOffset::MaxAccelerationForward, accel);
   }
 
   /// Gets the maximum acceleration in the forward direction from the
@@ -982,7 +982,7 @@ public:
   /// See also setMaxAccelerationForward().
   uint16_t getMaxAccelerationForward()
   {
-    return getOvrSetting16(OvrSettingOffset::MaxAccelerationForward);
+    return getOvrSetting16(SettingOffset::MaxAccelerationForward);
   }
 
   /// Sets the maximum acceleration in the reverse direction in the
@@ -996,7 +996,7 @@ public:
   /// setMaxAcceleration(), and setMaxDecelerationReverse().
   void setMaxAccelerationReverse(uint16_t accel)
   {
-    setOvrSetting16(OvrSettingOffset::MaxAccelerationReverse, accel);
+    setOvrSetting16(SettingOffset::MaxAccelerationReverse, accel);
   }
 
   /// Gets the maximum acceleration in the reverse direction from the
@@ -1005,7 +1005,7 @@ public:
   /// See also setMaxAccelerationReverse().
   uint16_t getMaxAccelerationReverse()
   {
-    return getOvrSetting16(OvrSettingOffset::MaxAccelerationReverse);
+    return getOvrSetting16(SettingOffset::MaxAccelerationReverse);
   }
 
   /// Sets the maximum acceleration in both directions in the
@@ -1019,7 +1019,7 @@ public:
   /// setMaxDeceleration().
   void setMaxAcceleration(uint16_t accel)
   {
-    setOvrSetting16x2(OvrSettingOffset::MaxAccelerationForward, accel, accel);
+    setOvrSetting16x2(SettingOffset::MaxAccelerationForward, accel, accel);
   }
 
   /// Sets the maximum deceleration in the forward direction in the Jrk's RAM
@@ -1033,7 +1033,7 @@ public:
   /// setMaxDeceleration(), and setMaxAccelerationForward().
   void setMaxDecelerationForward(uint16_t decel)
   {
-    setOvrSetting16(OvrSettingOffset::MaxDecelerationForward, decel);
+    setOvrSetting16(SettingOffset::MaxDecelerationForward, decel);
   }
 
   /// Gets the maximum deceleration in the forward direction from the Jrk's RAM
@@ -1042,7 +1042,7 @@ public:
   /// See also setMaxDecelerationForward().
   uint16_t getMaxDecelerationForward()
   {
-    return getOvrSetting16(OvrSettingOffset::MaxDecelerationForward);
+    return getOvrSetting16(SettingOffset::MaxDecelerationForward);
   }
 
   /// Sets the maximum deceleration in the reverse direction in the
@@ -1056,7 +1056,7 @@ public:
   /// setMaxDeceleration(), and setMaxAccelerationReverse().
   void setMaxDecelerationReverse(uint16_t decel)
   {
-    setOvrSetting16(OvrSettingOffset::MaxDecelerationReverse, decel);
+    setOvrSetting16(SettingOffset::MaxDecelerationReverse, decel);
   }
 
   /// Gets the maximum deceleration in the reverse direction from the Jrk's RAM
@@ -1065,7 +1065,7 @@ public:
   /// See also setMaxDecelerationReverse().
   uint16_t getMaxDecelerationReverse()
   {
-    return getOvrSetting16(OvrSettingOffset::MaxDecelerationReverse);
+    return getOvrSetting16(SettingOffset::MaxDecelerationReverse);
   }
 
   /// Sets the maximum deceleration in both directions in the
@@ -1079,7 +1079,7 @@ public:
   /// setMaxAcceleration().
   void setMaxDeceleration(uint16_t decel)
   {
-    setOvrSetting16x2(OvrSettingOffset::MaxDecelerationForward, decel, decel);
+    setOvrSetting16x2(SettingOffset::MaxDecelerationForward, decel, decel);
   }
 
   /// Sets the maximum duty cycle in the forward direction in the
@@ -1092,7 +1092,7 @@ public:
   /// See also getMaxDutyCycleForward(), setMaxDutyCycleReverse().
   void setMaxDutyCycleForward(uint16_t duty)
   {
-    setOvrSetting16(OvrSettingOffset::MaxDutyCycleForward, duty);
+    setOvrSetting16(SettingOffset::MaxDutyCycleForward, duty);
   }
 
   /// Gets the maximum duty cycle in the forward direction from the Jrk's RAM
@@ -1101,7 +1101,7 @@ public:
   /// See also setMaxDutyCycleForward().
   uint16_t getMaxDutyCycleForward()
   {
-    return getOvrSetting16(OvrSettingOffset::MaxDutyCycleForward);
+    return getOvrSetting16(SettingOffset::MaxDutyCycleForward);
   }
 
   /// Sets the maximum duty cycle in the reverse direction in the
@@ -1114,7 +1114,7 @@ public:
   /// See also getMaxDutyCycleReverse(), setMaxDutyCycleForard().
   void setMaxDutyCycleReverse(uint16_t duty)
   {
-    setOvrSetting16(OvrSettingOffset::MaxDutyCycleReverse, duty);
+    setOvrSetting16(SettingOffset::MaxDutyCycleReverse, duty);
   }
 
   /// Gets the maximum duty cycle in the reverse direction from the
@@ -1123,7 +1123,7 @@ public:
   /// See also setMaxDutyCycleReverse().
   uint16_t getMaxDutyCycleReverse()
   {
-    return getOvrSetting16(OvrSettingOffset::MaxDutyCycleReverse);
+    return getOvrSetting16(SettingOffset::MaxDutyCycleReverse);
   }
 
   /// Sets the maximum duty cycle for both directions in the
@@ -1136,7 +1136,7 @@ public:
   /// See also setMaxDutyCycleForward(), setMaxDutyCycleReverse().
   void setMaxDutyCycle(uint16_t duty)
   {
-    setOvrSetting16x2(OvrSettingOffset::MaxDutyCycleForward, duty, duty);
+    setOvrSetting16x2(SettingOffset::MaxDutyCycleForward, duty, duty);
   }
 
   /// Sets the encoded hard current limit for driving in the forward direction
@@ -1150,7 +1150,7 @@ public:
   /// setEncodedHardCurrentLimitReverse().
   void setEncodedHardCurrentLimitForward(uint16_t encoded_limit)
   {
-    setOvrSetting16(OvrSettingOffset::EncodedHardCurrentLimitForward,
+    setOvrSetting16(SettingOffset::EncodedHardCurrentLimitForward,
       encoded_limit);
   }
 
@@ -1160,7 +1160,7 @@ public:
   /// See also setEncodedHardCurrentLimitForward().
   uint16_t getEncodedHardCurrentLimitForward()
   {
-    return getOvrSetting16(OvrSettingOffset::EncodedHardCurrentLimitForward);
+    return getOvrSetting16(SettingOffset::EncodedHardCurrentLimitForward);
   }
 
   /// Sets the encoded hard current limit for driving in the reverse direction
@@ -1174,7 +1174,7 @@ public:
   /// setEncodedHardCurrentLimitForward().
   void setEncodedHardCurrentLimitReverse(uint16_t code)
   {
-    setOvrSetting16(OvrSettingOffset::EncodedHardCurrentLimitReverse, code);
+    setOvrSetting16(SettingOffset::EncodedHardCurrentLimitReverse, code);
   }
 
   /// Gets the encoded hard current limit for driving in the reverse direction
@@ -1183,7 +1183,7 @@ public:
   /// See also setEncodedHardCurrentLimitReverse().
   uint16_t getEncodedHardCurrentLimitReverse()
   {
-    return getOvrSetting16(OvrSettingOffset::EncodedHardCurrentLimitReverse);
+    return getOvrSetting16(SettingOffset::EncodedHardCurrentLimitReverse);
   }
 
   /// Sets the encoded hard current limit for both directions in the Jrk's RAM
@@ -1198,7 +1198,7 @@ public:
   /// setSoftCurrentLimit().
   void setEncodedHardCurrentLimit(uint16_t encoded_limit)
   {
-    setOvrSetting16x2(OvrSettingOffset::EncodedHardCurrentLimitForward,
+    setOvrSetting16x2(SettingOffset::EncodedHardCurrentLimitForward,
       encoded_limit, encoded_limit);
   }
 
@@ -1212,7 +1212,7 @@ public:
   /// See also getBrakeDurationForward() and setBrakeDurationReverse().
   void setBrakeDurationForward(uint8_t duration)
   {
-    setOvrSetting8(OvrSettingOffset::BrakeDurationForward, duration);
+    setOvrSetting8(SettingOffset::BrakeDurationForward, duration);
   }
 
   /// Gets the brake duration when switching from forward to reverse from the
@@ -1221,7 +1221,7 @@ public:
   /// See also setBrakeDurationForward().
   uint8_t getBrakeDurationForward()
   {
-    return getOvrSetting8(OvrSettingOffset::BrakeDurationForward);
+    return getOvrSetting8(SettingOffset::BrakeDurationForward);
   }
 
   /// Sets the brake duration when switching from reverse to forward in the
@@ -1234,7 +1234,7 @@ public:
   /// See also getBrakeDurationReverse() and setBrakeDurationForward().
   void setBrakeDurationReverse(uint8_t duration)
   {
-    setOvrSetting8(OvrSettingOffset::BrakeDurationReverse, duration);
+    setOvrSetting8(SettingOffset::BrakeDurationReverse, duration);
   }
 
   /// Gets the brake duration when switching from reverse to forward from the
@@ -1243,7 +1243,7 @@ public:
   /// See also setBrakeDurationReverse().
   uint8_t getBrakeDurationReverse()
   {
-    return getOvrSetting8(OvrSettingOffset::BrakeDurationReverse);
+    return getOvrSetting8(SettingOffset::BrakeDurationReverse);
   }
 
   /// Sets the brake duration for both directions in the Jrk's RAM settings, in
@@ -1256,7 +1256,7 @@ public:
   /// See also setBrakeDurationForward(), setBrakeDurationReverse().
   void setBrakeDuration(uint8_t duration)
   {
-    setOvrSetting8x2(OvrSettingOffset::BrakeDurationForward, duration, duration);
+    setOvrSetting8x2(SettingOffset::BrakeDurationForward, duration, duration);
   }
 
   /// Sets the soft current limit when driving in the forward direction in the
@@ -1269,7 +1269,7 @@ public:
   /// See also getSoftCurrentLimitForward() and setSoftCurrentLimitReverse().
   void setSoftCurrentLimitForward(uint16_t current)
   {
-    setOvrSetting16(OvrSettingOffset::SoftCurrentLimitForward, current);
+    setOvrSetting16(SettingOffset::SoftCurrentLimitForward, current);
   }
 
   /// Gets the soft current limit when driving in the forward direction from the
@@ -1278,7 +1278,7 @@ public:
   /// See also setSoftCurrentLimitForward().
   uint16_t getSoftCurrentLimitForward()
   {
-    return getOvrSetting16(OvrSettingOffset::SoftCurrentLimitForward);
+    return getOvrSetting16(SettingOffset::SoftCurrentLimitForward);
   }
 
   /// Sets the soft current limit when driving in the reverse direction in the
@@ -1291,7 +1291,7 @@ public:
   /// See also getSoftCurrentLimitReverse() and setSoftCurrentLimitForward().
   void setSoftCurrentLimitReverse(uint16_t current)
   {
-    setOvrSetting16(OvrSettingOffset::SoftCurrentLimitReverse, current);
+    setOvrSetting16(SettingOffset::SoftCurrentLimitReverse, current);
   }
 
   /// Gets the soft current limit when driving in the reverse direction from the
@@ -1300,7 +1300,7 @@ public:
   /// See also setSoftCurrentLimitReverse().
   uint16_t getSoftCurrentLimitReverse()
   {
-    return getOvrSetting16(OvrSettingOffset::SoftCurrentLimitReverse);
+    return getOvrSetting16(SettingOffset::SoftCurrentLimitReverse);
   }
 
   /// Sets the soft current limit for driving in both directions in the Jrk's
@@ -1314,7 +1314,7 @@ public:
   /// setEncodedHardCurrentLimit().
   void setSoftCurrentLimit(uint16_t current)
   {
-    setOvrSetting16x2(OvrSettingOffset::SoftCurrentLimitForward, current, current);
+    setOvrSetting16x2(SettingOffset::SoftCurrentLimitForward, current, current);
   }
 
   /// Returns 0 if the last communication with the device was successful, and
@@ -1366,30 +1366,70 @@ private:
     CurrentChoppingOccurrenceCount  = 0x34, // uint8_t; read with dedicated command
   };
 
-  enum OvrSettingOffset
+  enum SettingOffset
   {
-    OptionsByte3                        = 0x00, // uint8_t
-    ProportionalMultiplier              = 0x01, // uint16_t
-    ProportionalExponent                = 0x03, // uint8_t
-    IntegralMultiplier                  = 0x04, // uint16_t
-    IntegralExponent                    = 0x06, // uint8_t
-    DerivativeMultiplier                = 0x07, // uint16_t
-    DerivativeExponent                  = 0x09, // uint8_t
-    PIDPeriod                           = 0x0a, // uint16_t
-    IntegralLimit                       = 0x0c, // uint16_t
-    MaxDutyCycleWhileFeedbackOutOfRange = 0x0e, // uint16_t
-    MaxAccelerationForward              = 0x10, // uint16_t
-    MaxAccelerationReverse              = 0x12, // uint16_t
-    MaxDecelerationForward              = 0x14, // uint16_t
-    MaxDecelerationReverse              = 0x16, // uint16_t
-    MaxDutyCycleForward                 = 0x18, // uint16_t
-    MaxDutyCycleReverse                 = 0x1a, // uint16_t
-    EncodedHardCurrentLimitForward      = 0x1c, // uint16_t
-    EncodedHardCurrentLimitReverse      = 0x1e, // uint16_t
-    BrakeDurationForward                = 0x20, // uint8_t
-    BrakeDurationReverse                = 0x21, // uint8_t
-    SoftCurrentLimitForward             = 0x22, // uint16_t
-    SoftCurrentLimitReverse             = 0x24, // uint16_t
+    OptionsByte1                        = 0x01,  // uint8_t
+    OptionsByte2                        = 0x02,  // uint8_t
+    InputMode                           = 0x03,  // uint8_t
+    InputErrorMinimum                   = 0x04,  // uint16_t,
+    InputErrorMaximum                   = 0x06,  // uint16_t,
+    InputMinimum                        = 0x08,  // uint16_t,
+    InputMaximum                        = 0x0A,  // uint16_t,
+    InputNeutralMinimum                 = 0x0C,  // uint16_t,
+    InputNeutralMaximum                 = 0x0E,  // uint16_t,
+    OutputMinimum                       = 0x10,  // uint16_t,
+    OutputNeutral                       = 0x12,  // uint16_t,
+    OutputMaximum                       = 0x14,  // uint16_t,
+    InputScalingDegree                  = 0x16,  // uint8_t,
+    InputAnalogSamplesExponent          = 0x17,  // uint8_t,
+    FeedbackMode                        = 0x18,  // uint8_t,
+    FeedbackErrorMinimum                = 0x19,  // uint16_t,
+    FeedbackErrorMaximum                = 0x1B,  // uint16_t,
+    FeedbackMinimum                     = 0x1D,  // uint16_t,
+    FeedbackMaximum                     = 0x1F,  // uint16_t,
+    FeedbackDeadZone                    = 0x21,  // uint8_t,
+    FeedbackAnalogSamplesExponent       = 0x22,  // uint8_t,
+    SerialMode                          = 0x23,  // uint8_t,
+    SerialBaudRateGenerator             = 0x24,  // uint16_t,
+    SerialTimeout                       = 0x26,  // uint16_t,
+    SerialDeviceNumber                  = 0x28,  // uint16_t,
+    ErrorEnable                         = 0x2A,  // uint16_t
+    ErrorLatch                          = 0x2C,  // uint16_t
+    ErrorHard                           = 0x2E,  // uint16_t
+    VinCalibration                      = 0x30,  // uint16_t
+    PwmFrequency                        = 0x32,  // uint8_t
+    CurrentSamplesExponent              = 0x33,  // uint8_t
+    HardOvercurrentThreshold            = 0x34,  // uint8_t
+    CurrentOffsetCalibration            = 0x35,  // uint16_t
+    CurrentScaleCalibration             = 0x37,  // uint16_t
+    FBTMethod                           = 0x39,  // uint8_t
+    FBTOptions                          = 0x3A,  // uint8_t
+    FBTTimingTimeout                    = 0x3B,  // uint16_t
+    FBTSamples                          = 0x3D,  // uint8_t
+    FBTDividerExponent                  = 0x3E,  // uint8_t
+    IntegralDividerExponent             = 0x3F,  // uint8_t
+    OptionsByte3                        = 0x50,  // uint8_t
+    ProportionalMultiplier              = 0x51,  // uint16_t
+    ProportionalExponent                = 0x53,  // uint8_t
+    IntegralMultiplier                  = 0x54,  // uint16_t
+    IntegralExponent                    = 0x56,  // uint8_t
+    DerivativeMultiplier                = 0x57,  // uint16_t
+    DerivativeExponent                  = 0x59,  // uint8_t
+    PIDPeriod                           = 0x5A,  // uint16_t
+    IntegralLimit                       = 0x5C,  // uint16_t
+    MaxDutyCycleWhileFeedbackOutOfRange = 0x5E,  // uint16_t
+    MaxAccelerationForward              = 0x60,  // uint16_t
+    MaxAccelerationReverse              = 0x62,  // uint16_t
+    MaxDecelerationForward              = 0x64,  // uint16_t
+    MaxDecelerationReverse              = 0x66,  // uint16_t
+    MaxDutyCycleForward                 = 0x68,  // uint16_t
+    MaxDutyCycleReverse                 = 0x6A,  // uint16_t
+    EncodedHardCurrentLimitForward      = 0x6C,  // uint16_t
+    EncodedHardCurrentLimitReverse      = 0x6E,  // uint16_t
+    BrakeDurationForward                = 0x70,  // uint8_t
+    BrakeDurationReverse                = 0x71,  // uint8_t
+    SoftCurrentLimitForward             = 0x72,  // uint16_t
+    SoftCurrentLimitReverse             = 0x74,  // uint16_t
   };
 
   uint8_t getVar8SingleByte(uint8_t offset)
