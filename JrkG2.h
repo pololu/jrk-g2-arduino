@@ -1167,9 +1167,9 @@ public:
   ///
   /// See also getEncodedHardCurrentLimitReverse() and
   /// setEncodedHardCurrentLimitForward().
-  void setEncodedHardCurrentLimitReverse(uint16_t code)
+  void setEncodedHardCurrentLimitReverse(uint16_t encoded_limit)
   {
-    setRAMSetting16(SettingOffset::EncodedHardCurrentLimitReverse, code);
+    setRAMSetting16(SettingOffset::EncodedHardCurrentLimitReverse, encoded_limit);
   }
 
   /// Gets the encoded hard current limit for driving in the reverse direction
