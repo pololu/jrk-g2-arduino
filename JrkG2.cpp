@@ -55,14 +55,14 @@ uint16_t JrkG2Serial::commandR16(uint8_t cmd)
 }
 
 void JrkG2Serial::segmentRead(JrkG2Command cmd, uint8_t offset,
-  uint8_t length, void * buffer)
+  uint8_t length, uint8_t * buffer)
 {
   length &= 0x7F;
   sendCommandHeader(cmd);
   serialW7(offset);
   serialW7(length);
 
-  uint8_t byteCount = _stream->readBytes((uint8_t *)buffer, length);
+  uint8_t byteCount = _stream->readBytes(buffer, length);
   if (byteCount != length)
   {
     _lastError = JrkG2CommReadError;
@@ -77,7 +77,7 @@ void JrkG2Serial::segmentRead(JrkG2Command cmd, uint8_t offset,
 }
 
 void JrkG2Serial::segmentWrite(JrkG2Command cmd, uint8_t offset,
-  uint8_t length, void * buffer)
+  uint8_t length, uint8_t * buffer)
 {
   length &= 0x7; // max length = 7
   sendCommandHeader(cmd);
@@ -87,8 +87,8 @@ void JrkG2Serial::segmentWrite(JrkG2Command cmd, uint8_t offset,
   uint8_t msbs = 0; // most-significant bits
   for (uint8_t i = 0; i < length; i++)
   {
-    serialW7(((uint8_t *)buffer)[i]); // first byte of buffer with MSB cleared
-    msbs |= ((((uint8_t *)buffer)[i] >> 7) & 1) << i; // bit i = MSB of buffer[i]
+    serialW7(buffer[i]); // first byte of buffer with MSB cleared
+    msbs |= (buffer[i] >> 7 & 1) << i; // bit i = MSB of buffer[i]
   }
   serialW7(msbs);
 
@@ -181,7 +181,7 @@ uint16_t JrkG2I2C::commandR16(uint8_t cmd)
 }
 
 void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
-  uint8_t length, void * buffer)
+  uint8_t length, uint8_t * buffer)
 {
   Wire.beginTransmission(_address);
   Wire.write((uint8_t)cmd);
@@ -206,12 +206,12 @@ void JrkG2I2C::segmentRead(JrkG2Command cmd, uint8_t offset,
   _lastError = 0;
   for (uint8_t i = 0; i < length; i++)
   {
-    ((uint8_t *)buffer)[i] = Wire.read();
+    buffer[i] = Wire.read();
   }
 }
 
 void JrkG2I2C::segmentWrite(JrkG2Command cmd, uint8_t offset,
-  uint8_t length, void * buffer)
+  uint8_t length, uint8_t * buffer)
 {
   Wire.beginTransmission(_address);
   Wire.write((uint8_t)cmd);
@@ -219,7 +219,7 @@ void JrkG2I2C::segmentWrite(JrkG2Command cmd, uint8_t offset,
   Wire.write(length);
   for (uint8_t i = 0; i < length; i++)
   {
-    Wire.write(((uint8_t *)buffer)[i]);
+    Wire.write(buffer[i]);
   }
   _lastError = Wire.endTransmission();
 }

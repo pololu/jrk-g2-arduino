@@ -1561,9 +1561,9 @@ private:
   virtual uint16_t commandR16(uint8_t cmd) = 0;
   uint16_t commandR16(JrkG2Command cmd) { return commandR16((uint8_t)cmd); }
   virtual void segmentRead(JrkG2Command cmd, uint8_t offset,
-    uint8_t length, void * buffer) = 0;
+    uint8_t length, uint8_t * buffer) = 0;
   virtual void segmentWrite(JrkG2Command cmd, uint8_t offset,
-    uint8_t length, void * buffer) = 0;
+    uint8_t length, uint8_t * buffer) = 0;
 };
 
 /// Represents a serial connection to a Jrk G2.
@@ -1620,9 +1620,9 @@ private:
   uint8_t commandR8(uint8_t cmd);
   uint16_t commandR16(uint8_t cmd);
   void segmentRead(JrkG2Command cmd, uint8_t offset,
-    uint8_t length, void * buffer);
+    uint8_t length, uint8_t * buffer);
   void segmentWrite(JrkG2Command cmd, uint8_t offset,
-    uint8_t length, void * buffer);
+    uint8_t length, uint8_t * buffer);
 
   void sendCommandHeader(uint8_t cmd);
   void sendCommandHeader(JrkG2Command cmd) { sendCommandHeader((uint8_t)cmd); }
@@ -1662,7 +1662,7 @@ private:
   uint8_t commandR8(uint8_t cmd);
   uint16_t commandR16(uint8_t cmd);
   void segmentRead(JrkG2Command cmd, uint8_t offset,
-    uint8_t length, void * buffer);
+    uint8_t length, uint8_t * buffer);
   void segmentWrite(JrkG2Command cmd, uint8_t offset,
-    uint8_t length, void * buffer) ;
+    uint8_t length, uint8_t * buffer) ;
 };
