@@ -90,10 +90,6 @@ getEncodedHardCurrentLimit	KEYWORD2
 getLastDutyCycle	KEYWORD2
 getCurrentChoppingConsecutiveCount	KEYWORD2
 getCurrentChoppingOccurrenceCount	KEYWORD2
-getEEPROMSettings	KEYWORD2
-getRAMSettings	KEYWORD2
-setRAMSettings	KEYWORD2
-getVariables                            KEYWORD2
 setResetIntegral	KEYWORD2
 getResetIntegral	KEYWORD2
 setCoastWhenOff	KEYWORD2
@@ -149,6 +145,11 @@ getSoftCurrentLimitForward	KEYWORD2
 setSoftCurrentLimitReverse	KEYWORD2
 getSoftCurrentLimitReverse	KEYWORD2
 setSoftCurrentLimit	KEYWORD2
+
+getEEPROMSettings	KEYWORD2
+getRAMSettings	KEYWORD2
+setRAMSettings	KEYWORD2
+getVariables                            KEYWORD2
 
 getLastError	KEYWORD2
 

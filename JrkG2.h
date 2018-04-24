@@ -668,94 +668,6 @@ public:
     return commandR8(JrkG2Command::GetCurrentChoppingOccurrenceCount);
   }
 
-  /// Gets a contiguous block of settings from the Jrk G2's EEPROM.
-  ///
-  /// The maximum length that can be fetched is 15 bytes.
-  ///
-  /// Example usage:
-  /// ```
-  /// // Get the Jrk's serial device number.
-  /// uint8_t deviceNumber;
-  /// jrk.getEEPROMSettings(0x28, 1, &deviceNumber);
-  /// ```
-  ///
-  /// For information on how the settings are encoded,
-  /// see the Jrk G2 user's guide.
-  void getEEPROMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
-  {
-    segmentRead(JrkG2Command::GetEEPROMSettings, offset, length, buffer);
-  }
-
-  /// Gets a contiguous block of settings from the Jrk G2's RAM.
-  ///
-  /// The maximum length that can be fetched is 15 bytes.
-  ///
-  /// Example usage:
-  /// ```
-  /// // Get the Jrk's feedback maximum setting.
-  /// uint8_t buffer[2];
-  /// jrk.getRAMSettings(0x1F, 2, buffer);
-  /// uint16_t feedbackMaximum = buffer[0] + (buffer[1] << 8);
-  /// ```
-  ///
-  /// Note that this library has several functions for reading and writing
-  /// specific RAM settings, and they are easier to use than this function.
-  ///
-  /// For information on how the settings are encoded,
-  /// see the Jrk G2 user's guide.
-  void getRAMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
-  {
-    segmentRead(JrkG2Command::GetRAMSettings, offset, length, buffer);
-  }
-
-  /// Sets a contiguous block of settings in the Jrk G2's RAM.
-  ///
-  /// The maximum length that can be written in a single command
-  /// is 7 bytes over Serial, 13 bytes over I2C.
-  ///
-  /// Example usage:
-  /// ```
-  /// // Set the Jrk's feedback maximum setting.
-  /// uint16_t feedbackMaximum = 1234;
-  /// uint8_t buffer[2];
-  /// buffer[0] = feedbackMaximum & 0xFF;
-  /// buffer[1] = feedbackMaximum >> 8 & 0xFF;
-  /// jrk.setRAMSettings(0x1F, 2, buffer);
-  /// ```
-  ///
-  /// Note that this library has several functions for reading and writing
-  /// specific RAM settings, and they are easier to use than this function.
-  ///
-  /// For information on how the settings are encoded,
-  /// see the Jrk G2 user's guide.
-  void setRAMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
-  {
-    segmentWrite(JrkG2Command::SetRAMSettings, offset, length, buffer);
-  }
-
-  /// Gets a contiguous block of variables from the Jrk G2.
-  ///
-  /// Note that this library has convenient functions for reading every variable
-  /// provided by the Jrk.  The main reason to use this function is if you want
-  /// to read multiple variables at once for extra efficiency or to ensure that
-  /// the variables are in a consistent state.
-  ///
-  /// The maximum length that can be fetched is 15 bytes.
-  ///
-  /// Example usage:
-  /// ```
-  /// // Get the Jrk's last device reset and its up time.
-  /// uint8_t buffer[5];
-  /// jrk.getVariables(0x1F, 5, buffer);
-  /// ```
-  ///
-  /// For information on how the variables are encoded,
-  /// see the Jrk G2 user's guide.
-  void getVariables(uint8_t offset, uint8_t length, uint8_t * buffer)
-  {
-    segmentRead(JrkG2Command::GetVariables, offset, length, buffer);
-  }
-
   /// Sets or clears the "Reset integral" setting in the Jrk's RAM settings.
   ///
   /// If this setting is set to true, the PID algorithm will reset the integral
@@ -1379,6 +1291,94 @@ public:
   void setSoftCurrentLimit(uint16_t current)
   {
     setRAMSetting16x2(SettingOffset::SoftCurrentLimitForward, current, current);
+  }
+
+  /// Gets a contiguous block of settings from the Jrk G2's EEPROM.
+  ///
+  /// The maximum length that can be fetched is 15 bytes.
+  ///
+  /// Example usage:
+  /// ```
+  /// // Get the Jrk's serial device number.
+  /// uint8_t deviceNumber;
+  /// jrk.getEEPROMSettings(0x28, 1, &deviceNumber);
+  /// ```
+  ///
+  /// For information on how the settings are encoded,
+  /// see the Jrk G2 user's guide.
+  void getEEPROMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
+  {
+    segmentRead(JrkG2Command::GetEEPROMSettings, offset, length, buffer);
+  }
+
+  /// Gets a contiguous block of settings from the Jrk G2's RAM.
+  ///
+  /// The maximum length that can be fetched is 15 bytes.
+  ///
+  /// Example usage:
+  /// ```
+  /// // Get the Jrk's feedback maximum setting.
+  /// uint8_t buffer[2];
+  /// jrk.getRAMSettings(0x1F, 2, buffer);
+  /// uint16_t feedbackMaximum = buffer[0] + (buffer[1] << 8);
+  /// ```
+  ///
+  /// Note that this library has several functions for reading and writing
+  /// specific RAM settings, and they are easier to use than this function.
+  ///
+  /// For information on how the settings are encoded,
+  /// see the Jrk G2 user's guide.
+  void getRAMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
+  {
+    segmentRead(JrkG2Command::GetRAMSettings, offset, length, buffer);
+  }
+
+  /// Sets a contiguous block of settings in the Jrk G2's RAM.
+  ///
+  /// The maximum length that can be written in a single command
+  /// is 7 bytes over Serial, 13 bytes over I2C.
+  ///
+  /// Example usage:
+  /// ```
+  /// // Set the Jrk's feedback maximum setting.
+  /// uint16_t feedbackMaximum = 1234;
+  /// uint8_t buffer[2];
+  /// buffer[0] = feedbackMaximum & 0xFF;
+  /// buffer[1] = feedbackMaximum >> 8 & 0xFF;
+  /// jrk.setRAMSettings(0x1F, 2, buffer);
+  /// ```
+  ///
+  /// Note that this library has several functions for reading and writing
+  /// specific RAM settings, and they are easier to use than this function.
+  ///
+  /// For information on how the settings are encoded,
+  /// see the Jrk G2 user's guide.
+  void setRAMSettings(uint8_t offset, uint8_t length, uint8_t * buffer)
+  {
+    segmentWrite(JrkG2Command::SetRAMSettings, offset, length, buffer);
+  }
+
+  /// Gets a contiguous block of variables from the Jrk G2.
+  ///
+  /// Note that this library has convenient functions for reading every variable
+  /// provided by the Jrk.  The main reason to use this function is if you want
+  /// to read multiple variables at once for extra efficiency or to ensure that
+  /// the variables are in a consistent state.
+  ///
+  /// The maximum length that can be fetched is 15 bytes.
+  ///
+  /// Example usage:
+  /// ```
+  /// // Get the Jrk's last device reset and its up time.
+  /// uint8_t buffer[5];
+  /// jrk.getVariables(0x1F, 5, buffer);
+  /// ```
+  ///
+  /// For information on how the variables are encoded,
+  /// see the Jrk G2 user's guide.
+  void getVariables(uint8_t offset, uint8_t length, uint8_t * buffer)
+  {
+    segmentRead(JrkG2Command::GetVariables, offset, length, buffer);
   }
 
   /// Returns 0 if the last communication with the device was successful, and
