@@ -222,7 +222,7 @@ public:
   /// clears the "Awaiting command" error bit.
   ///
   /// To get out of this mode, use setTarget(), setTargetLowResFwd(),
-  /// setTargetLowResRev(), forceDutyCycle(), or motorOff().
+  /// setTargetLowResRev(), forceDutyCycle(), or stopMotor().
   ///
   /// See also getForceMode().
   void forceDutyCycleTarget(int16_t dutyCycle)
@@ -254,7 +254,7 @@ public:
   /// clears the "Awaiting command" error bit.
   ///
   /// To get out of this mode, use setTarget(), setTargetLowResFwd(),
-  /// setTargetLowResRev(), forceDutyCycleTarget(), or motorOff().
+  /// setTargetLowResRev(), forceDutyCycleTarget(), or stopMotor().
   ///
   /// See also getForceMode().
   void forceDutyCycle(int16_t dutyCycle)
@@ -263,7 +263,6 @@ public:
     if (dutyCycle < -600) { dutyCycle = -600; }
     commandWs14(JrkG2Command::ForceDutyCycle, dutyCycle);
   }
-
 
   /// Turns the motor off.
   ///
@@ -275,10 +274,9 @@ public:
   ///
   /// Example usage:
   /// ```
-  /// jrkG2.motorOff();
+  /// jrkG2.stopMotor();
   /// ```
-  // TODO: rename to stopMotor()
-  void motorOff()
+  void stopMotor()
   {
     commandQuick(JrkG2Command::MotorOff);
   }
