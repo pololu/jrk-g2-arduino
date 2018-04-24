@@ -631,7 +631,7 @@ public:
   /// Gets the encoded value representing the hardware current limit the jrk is
   /// currently using.
   ///
-  /// See also getCurrent().
+  /// See also setEncodedHardCurrentLimit(), getCurrent().
   uint16_t getEncodedHardCurrentLimit()
   {
     return getVar16(VarOffset::EncodedHardCurrentLimit);
@@ -1194,7 +1194,8 @@ public:
   /// temporarily on the fly.
   ///
   /// See also setEncodedHardCurrentLimitForward(),
-  /// setEncodedHardCurrentLimitReverse(), and setSoftCurrentLimit().
+  /// setEncodedHardCurrentLimitReverse(), getEncodedHardCurrentLimit(), and
+  /// setSoftCurrentLimit().
   void setEncodedHardCurrentLimit(uint16_t encoded_limit)
   {
     setOvrSetting16x2(OvrSettingOffset::EncodedHardCurrentLimitForward,
