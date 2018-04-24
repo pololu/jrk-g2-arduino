@@ -281,13 +281,15 @@ public:
     commandQuick(JrkG2Command::MotorOff);
   }
 
-  /// Gets the raw, un-scaled input value, representing a measurement taken by
-  /// the Jrk of the input to the system.  In serial input mode, the input is
-  /// equal to the target, which can be set to any value 0-4095 using serial
-  /// commands.  In analog input mode, the input is a measurement of the voltage
-  /// on the RX pin, where 0 is 0 V and 4092 is a voltage equal to the Jrk's 5V
-  /// pin (approximately 4.8 V).  In pulse width input mode, the input is the
-  /// duration of the last pulse measured, in units of 2/3 us. TODO: check 4092
+  /// Gets the input variable.
+  ///
+  /// The input variable is a raw, unscaled value representing a measurement
+  /// taken by the Jrk of the input to the system.  In serial input mode, the
+  /// input is equal to the target, which can be set to any value from 0 to 4095
+  /// using serial commands.  In analog input mode, the input is a measurement
+  /// of the voltage on the SDA pin, where 0 is 0 V and 4092 is a voltage equal
+  /// to the Jrk's 5V pin (approximately 4.8 V).  In RC input mode, the input is
+  /// the duration of the last RC pulse measured, in units of 2/3 us.
   ///
   /// See the Jrk G2 user's guide for more information about input modes.
   ///
@@ -297,9 +299,11 @@ public:
     return getVar16SingleByte(VarOffset::Input);
   }
 
-  /// Gets the Jrk's target.  In serial input mode, the input is set directly
-  /// with serial commands.  In the other input modes, the target is computed by
-  /// scaling the input.  The input scaling can be configured.
+  /// Gets the target variable.
+  ///
+  /// In serial input mode, the target is set directly with serial commands.  In
+  /// the other input modes, the target is computed by scaling the input, using
+  /// the configurable input scaling settings.
   ///
   /// See also setTarget() and getInput().
   uint16_t getTarget()
@@ -307,11 +311,16 @@ public:
     return getVar16SingleByte(VarOffset::Target);
   }
 
-  /// Gets the raw, un-scaled feedback value, representing a measurement taken
-  /// by the Jrk of the output of the system. In analog feedback mode, the
-  /// feedback is a measurement of the voltage on the FBA pin, where 0 is 0 V
-  /// and 4092 is a voltage equal to the Jrk's 5V pin (approximately 4.8 V).
-  /// In no feedback mode (speed control mode), the feedback is always zero.  TODO: check 4092
+  /// Gets the feedback variable.
+  ///
+  /// The feedback variable is a raw, unscaled feedback value, representing a
+  /// measurement taken by the Jrk of the output of the system.  In analog
+  /// feedback mode, the feedback is a measurement of the voltage on the FBA
+  /// pin, where 0 is 0 V and 4092 is a voltage equal to the Jrk's 5V pin
+  /// (approximately 4.8 V).  In frequency feedback mode, the feedback is 2048
+  /// plus or minus a measurement of the frequency of pulses on the FBT pin.  In
+  /// feedback mode none (open-loop speed control mode), the feedback is always
+  /// zero.
   ///
   /// See also getScaledFeedback().
   uint16_t getFeedback()
@@ -319,8 +328,10 @@ public:
     return getVar16SingleByte(VarOffset::Feedback);
   }
 
-  /// Gets the Jrk's scaled feedback value.  The feedback scaling can be
-  /// configured.
+  /// Gets the scaled feedback variable.
+  ///
+  /// The scaled feedback is calculated from the feedback using the Jrk's
+  /// configurable feedback scaling settings.
   ///
   /// See also getFeedback().
   uint16_t getScaledFeedback()
@@ -328,25 +339,31 @@ public:
     return getVar16SingleByte(VarOffset::ScaledFeedback);
   }
 
-  /// Gets the Jrk's error sum (integral).  Every PID period, the error (scaled
-  /// feedback minus target) is added to the error sum.  The error sum gets
-  /// reset to zero whenever the Jrk is not driving the motor, and can
-  /// optionally be reset whenever the proportional term of the PID calculation
-  /// exceeds the maximum duty cycle. There is also a configurable integral
-  /// limit that the integral can not exceed.
+  /// Gets the integral variable.
+  ///
+  /// In general, every PID period, the error (scaled feedback minus target) is
+  /// added to the integral (also known as error sum).  There are several
+  /// settings to configure the behavior of this variable, and it is used in the
+  /// PID calculation.
   int16_t getIntegral()
   {
     return getVar16SingleByte(VarOffset::Integral);
   }
 
-  /// Gets the Jrk's duty cycle target, which is the duty cycle that it is
-  /// trying to achieve.  A value of -600 or less means full speed reverse,
-  /// while a value of 600 or more means full speed forward.  A value of 0 means
-  /// braking.  In no feedback mode (speed control mode), the duty cycle target
-  /// is normally the target minus 2048. In other feedback modes, the duty cycle
-  /// target is normally the sum of the proportional, integral, and derivative
-  /// terms of the PID algorithm.  In any mode, the duty cycle target can be
-  /// overridden with a Force Duty Cycle Target command.  TODO: check "or less"/"more"
+  /// Gets the duty cycle target variable.
+  ///
+  /// In general, this is the duty cycle that the Jrk is trying to achieve.  A
+  /// value of -600 or less means full speed reverse, while a value of 600 or
+  /// more means full speed forward.  A value of 0 means stopped (braking or
+  /// coasting).  In no feedback mode (open-loop speed control mode), the duty
+  /// cycle target is normally the target minus 2048. In other feedback modes,
+  /// the duty cycle target is normally the sum of the proportional, integral,
+  /// and derivative terms of the PID algorithm.  In any mode, the duty cycle
+  /// target can be overridden with forceDutyCycleTarget().
+  ///
+  /// If an error is stopping the motor, the duty cycle target variable will not
+  /// be directly affected, but the duty cycle variable will change/decelerate
+  /// to zero.
   ///
   /// See also getDutyCycle(), getLastDutyCycle(), and forceDutyCycleTarget().
   int16_t getDutyCycleTarget()
@@ -354,13 +371,15 @@ public:
     return getVar16SingleByte(VarOffset::DutyCycleTarget);
   }
 
-  /// Gets the duty cycle the Jrk is driving the motor with.  A value of -600 or less means full speed reverse,
-  /// while a value of 600 or more means full speed forward.  A value of 0 means
-  /// braking.  The duty cycle could be different from the duty cycle target
-  /// because it normally takes into account the Jrk's configurable limits for
-  /// maximum acceleration, maximum deceleration, maximum duty cycle, maximum
-  /// current, and brake duration.  The duty cycle can be overridden with a
-  /// Force Duty Cycle command.  TODO: check "or less"/"more"; does max current limit apply?
+  /// Gets the duty cycle variable.
+  ///
+  /// The duty cycle variable is the duty cycle at which the jrk is currently
+  /// driving the motor.  A value of -600 means full speed reverse, while a
+  /// value of 600 means full speed forward.  A value of 0 means stopped
+  /// (braking or coasting).  The duty cycle could be different from the duty
+  /// cycle target because it normally takes into account the Jrk's configurable
+  /// motor limits and errors.  The duty cycle can be overridden with
+  /// forceDutyCycle().
   ///
   /// See also getLastDutyCycle(), getDutyCycleTarget(), and forceDutyCycle().
   int16_t getDutyCycle()
@@ -368,10 +387,11 @@ public:
     return getVar16SingleByte(VarOffset::DutyCycle);
   }
 
-  /// Gets a low-resolution (TODO range) representation of the Jrk's measurement
-  /// of the current running through the motor.  TODO does current limit need to be enabled?
+  /// Gets the most-significant 8 bits of the "Current" variable.
   ///
-  /// See also getCurrent().
+  /// The Jrk G2 supports this command mainly to be compatible with older Jrk
+  /// models.  In new applications, we recommend using getCurrent(), which
+  /// provides a higher-resolution measurement.
   uint8_t getCurrentLowRes()
   {
     return getVar8SingleByte(VarOffset::CurrentLowRes);
@@ -380,15 +400,16 @@ public:
   /// Returns true if the Jrk's most recent PID cycle took more time than the
   /// configured PID period.  This indicates that the Jrk does not have time to
   /// perform all of its tasks at the desired rate.  Most often, this is caused
-  /// by the requested number of analog samples for input or feedback being
-  /// too high for the configured PID period. TODO check/simplify
+  /// by the configured number of analog samples for input, feedback, or current
+  /// sensing being too high for the configured PID period.
   bool getPIDPeriodExceeded()
   {
     return getVar8SingleByte(VarOffset::PIDPeriodExceeded);
   }
 
-  /// Returns the number of PID periods that have elapsed.  It resets to 0 after
-  /// reaching 65535.  The duration of the PID period can be configured.
+  /// Get the "PID period count" variable, which is the number of PID periods
+  /// that have elapsed.  It resets to 0 after reaching 65535.  The duration of
+  /// the PID period can be configured.
   uint16_t getPIDPeriodCount()
   {
     return getVar16SingleByte(VarOffset::PIDPeriodCount);
@@ -400,7 +421,7 @@ public:
   /// configuration utility, and then clicking the "Clear Errors" button.
   ///
   /// Each bit in the returned register represents a different error.  The bits
-  /// are defined in ::JrkG2Error enum.
+  /// are defined in the ::JrkG2Error enum.
   ///
   /// Example usage:
   /// ```
@@ -410,6 +431,9 @@ public:
   ///   // handle loss of power
   /// }
   /// ```
+  ///
+  /// It is possible to read this variable without clearing the bits in it using
+  /// a "Get variables" command, but this library currently does not support that.
   ///
   /// See also getErrorFlagsOccurred().
   uint16_t getErrorFlagsHalting()
@@ -437,6 +461,9 @@ public:
   /// }
   /// ```
   ///
+  /// It is possible to read this variable without clearing the bits in it using
+  /// a "Get Variables" command, but this library currently does not support that.
+  ///
   /// See also getErrorFlagsHalting().
   uint16_t getErrorFlagsOccurred()
   {
@@ -453,7 +480,7 @@ public:
   ///   // The duty cycle target is being overridden with a forced value.
   /// }
   /// ```
-
+  ///
   /// See also forceDutyCycleTarget() and forceDutyCycle().
   JrkG2ForceMode getForceMode()
   {
@@ -472,9 +499,7 @@ public:
   }
 
   /// Gets the Jrk's measurement of the current running through the motor, in
-  /// milliamps.  TODO right units? does current limit need to be enabled?
-  ///
-  /// See also getCurrentLowRes().
+  /// milliamps.
   uint16_t getCurrent()
   {
     return getVar16SingleByte(VarOffset::Current);
@@ -506,7 +531,7 @@ public:
     return getVar32(VarOffset::UpTime);
   }
 
-  /// Gets the raw pulse width measured on the Jrk's RC input, in units of
+  /// Gets the raw RC pulse width measured on the Jrk's RC input, in units of
   /// twelfths of a microsecond.
   ///
   /// Returns 0 if the RC input is missing or invalid.
@@ -524,26 +549,29 @@ public:
     return getVar16(VarOffset::RCPulseWidth);
   }
 
-  /// Gets the pulse rate measured on the Jrk's FBT (tachometer feedback) pin,
-  /// in units of pulses per PID period. TODO check
+  /// Gets the raw pulse rate or pulse width measured on the Jrk's FBT
+  /// (tachometer feedback) pin.
+  ///
+  /// In pulse counting mode, this will be the number of pulses on the FBT pin
+  /// seen in the last N PID periods, where N is the "Pulse samples" setting.
+  ///
+  /// In pulse timing mode, this will be a measurement of the width of pulses on
+  /// the FBT pin.  This measurement is affected by several configurable
+  /// settings.
   ///
   /// Example usage:
   /// ```
-  /// uint16_t tachReading = jrk.getTachometerReading();
-  /// if (tachReading > 10)
-  /// {
-  ///   // Tachometer pulse rate is greater than 10 pulses per PID period.
-  /// }
+  /// uint16_t fbtReading = jrk.getFBTReading();
   /// ```
-  uint16_t getTachometerReading()
+  uint16_t getFBTReading()
   {
-    return getVar16(VarOffset::TachometerReading);
+    return getVar16(VarOffset::FBTReading);
   }
 
   /// Gets the analog reading from the specified pin.
   ///
-  /// The reading is left-justified, so 0xFFFF represents a voltage equal to the
-  /// Jrk's 5V pin (approximately 4.8 V). TODO still valid?
+  /// The reading is left-justified, so 0xFFFE represents a voltage equal to the
+  /// Jrk's 5V pin (approximately 4.8 V).
   ///
   /// Returns JrkG2InputNull if the analog reading is disabled or not ready or
   /// the pin is invalid.
@@ -560,18 +588,20 @@ public:
   {
     switch (pin)
     {
-      case JrkG2Pin::SDA:
-        return getVar16(VarOffset::AnalogReadingSDA);
-      case JrkG2Pin::FBA:
-        return getVar16(VarOffset::AnalogReadingFBA);
-      default:
-        return JrkG2InputNull;
+    case JrkG2Pin::SDA:
+      return getVar16(VarOffset::AnalogReadingSDA);
+    case JrkG2Pin::FBA:
+      return getVar16(VarOffset::AnalogReadingFBA);
+    default:
+      return JrkG2InputNull;
     }
   }
 
   /// Gets a digital reading from the specified pin.
   ///
-  /// Returns `true` for high and `false` for low.
+  /// A return value of 0 means low while 1 means high.  In most cases, pins
+  /// configured as analog inputs cannot be read as digital inputs, so their
+  /// values will be 0.  See getAnalogReading() for those pins.
   ///
   /// Example usage:
   /// ```
@@ -586,32 +616,42 @@ public:
     return (readings >> (uint8_t)pin) & 1;
   }
 
-  /// Gets the Jrk's raw measurement of the current running through the motor.  TODO check/fix
+  /// Gets the Jrk's raw measurement of the current running through the motor.
   ///
-  /// See also getCurrentLowRes().
+  /// This is an analog voltage reading from the Jrk's current sense
+  /// pin.  The units of the reading depend on what hard current limit is being
+  /// used (getEncodedHardCurrentLimit()).
+  ///
+  /// See also getCurrent().
   uint16_t getRawCurrent()
   {
     return getVar16(VarOffset::RawCurrent);
   }
 
-  /// Gets the Jrk's raw measurement of the current running through the motor.  TODO check/fix
+  /// Gets the encoded value representing the hardware current limit the jrk is
+  /// currently using.
   ///
-  /// See also getCurrentLowRes().
-  uint16_t getCurrentLimitCode()
+  /// See also getCurrent().
+  uint16_t getEncodedHardCurrentLimit()
   {
-    return getVar16(VarOffset::CurrentLimitCode);
+    return getVar16(VarOffset::EncodedHardCurrentLimit);
   }
+  // TODO: add a comment above to also see whatever function we have for setting
+  // the hard current limits in RAM
 
-  /// Gets the duty cycle the Jrk drove the motor with in the last PID period.  TODO check/fix
+  /// Gets the duty cycle the Jrk drove the motor with in the last PID period.
   ///
-  /// See also getDutyCycle() and getDutyCycleTarget().
+  /// This can be useful for converting the getRawCurrent() reading into
+  /// milliamps.
+  ///
+  /// See also getDutyCycle(), getDutyCycleTarget(), and getCurrent().
   int16_t getLastDutyCycle()
   {
     return getVar16(VarOffset::LastDutyCycle);
   }
 
   /// Gets the number of consecutive PID periods during which current chopping
-  /// has been active.  TODO check/fix
+  /// due to the hard current limit has been active.
   ///
   /// See also getCurrentChoppingOccurrenceCount().
   uint8_t getCurrentChoppingConsecutiveCount()
@@ -619,8 +659,10 @@ public:
     return getVar8(VarOffset::CurrentChoppingConsecutiveCount);
   }
 
-  /// Gets the number of PID periods during which current chopping has been
-  /// active since the last time this function was called.  TODO check/fix
+  /// Gets and clears the "Current chopping occurrence count" variable, which is
+  /// the number of PID periods during which current chopping due to the hard
+  /// current limit has been active, since the last time the variable was
+  /// cleared.
   ///
   /// See also getCurrentChoppingConsecutiveCount().
   uint8_t getCurrentChoppingOccurrenceCount()
@@ -1169,12 +1211,12 @@ private:
     DeviceReset                     = 0x1F, // uint8_t
     UpTime                          = 0x20, // uint32_t
     RCPulseWidth                    = 0x24, // uint16_t
-    TachometerReading               = 0x26, // uint16_t
+    FBTReading                      = 0x26, // uint16_t
     AnalogReadingSDA                = 0x28, // uint16_t
     AnalogReadingFBA                = 0x2A, // uint16_t
     DigitalReadings                 = 0x2C, // uint8_t
     RawCurrent                      = 0x2D, // uint16_t
-    CurrentLimitCode                = 0x2F, // uint16_t
+    EncodedHardCurrentLimit         = 0x2F, // uint16_t
     LastDutyCycle                   = 0x31, // int16_t
     CurrentChoppingConsecutiveCount = 0x33, // uint8_t
     CurrentChoppingOccurrenceCount  = 0x34, // uint8_t; read with dedicated command
