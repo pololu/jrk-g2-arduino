@@ -149,7 +149,7 @@ setSoftCurrentLimit	KEYWORD2
 getEEPROMSettings	KEYWORD2
 getRAMSettings	KEYWORD2
 setRAMSettings	KEYWORD2
-getVariables                            KEYWORD2
+getVariables	KEYWORD2
 
 getLastError	KEYWORD2
 
