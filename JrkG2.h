@@ -159,7 +159,7 @@ public:
 
   /// Sets the target of the Jrk based on a value in the range 0 to 127.
   ///
-  /// If the value is zero, then this command is equivalent to the Motor Off
+  /// If the value is zero, then this command is equivalent to the "Stop motor"
   /// command. Otherwise, the value maps to a 12-bit target less than 2048.
   ///
   /// If the feedback mode is Analog or Tachometer, then the formula is
@@ -276,7 +276,7 @@ public:
 
   /// Turns the motor off.
   ///
-  /// This function sends a "Motor off" command to the Jrk, which sets the
+  /// This function sends a "Stop motor" command to the Jrk, which sets the
   /// "Awaiting command" error bit.  The Jrk will respect the configured
   /// deceleration limit while decelerating to a duty cycle of 0, unless the
   /// "Awaiting command" error has been configured as a hard error.  Once the duty
