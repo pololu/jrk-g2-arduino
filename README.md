@@ -1,7 +1,7 @@
 # Jrk G2 library for Arduino
 
-Version: 1.0.0<br>
-Release date: 2018-04-24<br>
+Version: 1.0.1<br>
+Release date: 2018-06-08<br>
 [![Build Status](https://travis-ci.org/pololu/jrk-g2-arduino.svg?branch=master)](https://travis-ci.org/pololu/jrk-g2-arduino)<br>
 [www.pololu.com](https://www.pololu.com/)
 
@@ -121,4 +121,5 @@ For complete documentation of this library, see [the jrk-g2-arduino documentatio
 
 ## Version history
 
+* 1.0.1 (2018-06-08): Call `Serial.begin` in the two examples that use the serial monitor.
 * 1.0.0 (2018-04-24): Original release.
