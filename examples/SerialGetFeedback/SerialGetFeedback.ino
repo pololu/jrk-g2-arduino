@@ -31,6 +31,8 @@ JrkG2Serial jrk(jrkSerial);
 
 void setup()
 {
+  Serial.begin(115200);
+
   // Set the baud rate.
   jrkSerial.begin(9600);
 }

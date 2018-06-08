@@ -17,6 +17,8 @@ JrkG2I2C jrk;
 
 void setup()
 {
+  Serial.begin(115200);
+
   // Set up I2C.
   Wire.begin();
 }
