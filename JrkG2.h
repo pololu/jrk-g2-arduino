@@ -646,6 +646,9 @@ public:
   /// Gets the encoded value representing the hardware current limit the jrk is
   /// currently using.
   ///
+  /// This command is only valid for the Jrk G2 18v19, 24v13, 18v27, and 24v21.
+  /// The Jrk G2 21v3 does not have a configurable hard current limit.
+  ///
   /// See also setEncodedHardCurrentLimit(), getCurrent().
   uint16_t getEncodedHardCurrentLimit()
   {
@@ -676,6 +679,10 @@ public:
   /// the number of PID periods during which current chopping due to the hard
   /// current limit has been active, since the last time the variable was
   /// cleared.
+  ///
+  /// This command is only valid for the Jrk G2 18v19, 24v13, 18v27, and 24v21.
+  /// The Jrk G2 21v3 cannot sense when current chopping occurs so this command
+  /// will always return 0.
   ///
   /// See also getCurrentChoppingConsecutiveCount().
   uint8_t getCurrentChoppingOccurrenceCount()
@@ -1141,6 +1148,9 @@ public:
   /// Configuration Utility, but this function allows you to change it
   /// temporarily on the fly.
   ///
+  /// This command is only valid for the Jrk G2 18v19, 24v13, 18v27, and 24v21.
+  /// The Jrk G2 21v3 does not have a configurable hard current limit.
+  ///
   /// See also getEncodedHardCurrentLimitForward() and
   /// setEncodedHardCurrentLimitReverse().
   void setEncodedHardCurrentLimitForward(uint16_t encoded_limit)
@@ -1151,6 +1161,9 @@ public:
 
   /// Gets the encoded hard current limit for driving in the forward direction
   /// from the Jrk's RAM settings.
+  ///
+  /// This command is only valid for the Jrk G2 18v19, 24v13, 18v27, and 24v21.
+  /// The Jrk G2 21v3 does not have a configurable hard current limit.
   ///
   /// See also setEncodedHardCurrentLimitForward().
   uint16_t getEncodedHardCurrentLimitForward()
@@ -1165,6 +1178,9 @@ public:
   /// Configuration Utility, but this function allows you to change it
   /// temporarily on the fly.
   ///
+  /// This command is only valid for the Jrk G2 18v19, 24v13, 18v27, and 24v21.
+  /// The Jrk G2 21v3 does not have a configurable hard current limit.
+  ///
   /// See also getEncodedHardCurrentLimitReverse() and
   /// setEncodedHardCurrentLimitForward().
   void setEncodedHardCurrentLimitReverse(uint16_t encoded_limit)
@@ -1174,6 +1190,9 @@ public:
 
   /// Gets the encoded hard current limit for driving in the reverse direction
   /// from the Jrk's RAM settings.
+  ///
+  /// This command is only valid for the Jrk G2 18v19, 24v13, 18v27, and 24v21.
+  /// The Jrk G2 21v3 does not have a configurable hard current limit.
   ///
   /// See also setEncodedHardCurrentLimitReverse().
   uint16_t getEncodedHardCurrentLimitReverse()
@@ -1187,6 +1206,9 @@ public:
   /// You would normally configure this setting ahead of time using the Jrk G2
   /// Configuration Utility, but this function allows you to change it
   /// temporarily on the fly.
+  ///
+  /// This command is only valid for the Jrk G2 18v19, 24v13, 18v27, and 24v21.
+  /// The Jrk G2 21v3 does not have a configurable hard current limit.
   ///
   /// See also setEncodedHardCurrentLimitForward(),
   /// setEncodedHardCurrentLimitReverse(), getEncodedHardCurrentLimit(), and
@@ -1311,6 +1333,8 @@ public:
   {
     setRAMSetting16x2(SettingOffset::SoftCurrentLimitForward, current, current);
   }
+
+  // TODO: add functions to get and set the soft current regulation level
 
   ///@}
 
@@ -1491,6 +1515,8 @@ private:
     FBTSamples                          = 0x3D,  // uint8_t
     FBTDividerExponent                  = 0x3E,  // uint8_t
     IntegralDividerExponent             = 0x3F,  // uint8_t
+    SoftCurrentRegulationLevelForward   = 0x40,  // uint16_t
+    SoftCurrentRegulationLevelReverse   = 0x42,  // uint16_t
     OptionsByte3                        = 0x50,  // uint8_t
     ProportionalMultiplier              = 0x51,  // uint16_t
     ProportionalExponent                = 0x53,  // uint8_t
