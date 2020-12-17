@@ -2,7 +2,6 @@
 
 Version: 1.1.0<br>
 Release date: 2018-07-24<br>
-[![Build Status](https://travis-ci.org/pololu/jrk-g2-arduino.svg?branch=master)](https://travis-ci.org/pololu/jrk-g2-arduino)<br>
 [www.pololu.com](https://www.pololu.com/)
 
 ## Summary
